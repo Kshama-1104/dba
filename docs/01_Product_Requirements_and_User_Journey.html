@@ -1,0 +1,2894 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DailyBlog AI — Product Requirements & User Journey Blueprint (Document 1)</title>
+  <style>
+    :root {
+      --primary: #4f46e5;
+      --primary-light: #eef2ff;
+      --primary-dark: #3730a3;
+      --secondary: #0ea5e9;
+      --accent: #8b5cf6;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --slate-50: #f8fafc;
+      --slate-100: #f1f5f9;
+      --slate-200: #e2e8f0;
+      --slate-300: #cbd5e1;
+      --slate-400: #94a3b8;
+      --slate-600: #475569;
+      --slate-700: #334155;
+      --slate-800: #1e293b;
+      --slate-900: #0f172a;
+      --card-bg: #ffffff;
+      --border: #e2e8f0;
+      --radius: 12px;
+      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+      --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+      --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      color: var(--slate-800);
+      background-color: var(--slate-50);
+      line-height: 1.6;
+    }
+
+    /* Layout */
+    .app-container {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* Sidebar Navigation */
+    .sidebar {
+      width: 320px;
+      background: var(--slate-900);
+      color: #fff;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+      padding: 24px 16px;
+      flex-shrink: 0;
+      box-shadow: 4px 0 10px rgba(0, 0, 0, 0.05);
+    }
+
+    .sidebar-header {
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--slate-800);
+      margin-bottom: 20px;
+    }
+
+    .sidebar-header .badge-doc {
+      display: inline-block;
+      background: var(--primary);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 8px;
+      border-radius: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+
+    .sidebar-header h1 {
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      color: #fff;
+    }
+
+    .sidebar-header p {
+      font-size: 12px;
+      color: var(--slate-400);
+      margin-top: 4px;
+    }
+
+    .sidebar-nav ul {
+      list-style: none;
+    }
+
+    .sidebar-nav li {
+      margin-bottom: 2px;
+    }
+
+    .sidebar-nav a {
+      display: block;
+      color: var(--slate-300);
+      text-decoration: none;
+      font-size: 13px;
+      padding: 7px 12px;
+      border-radius: 6px;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .sidebar-nav a:hover {
+      background: var(--slate-800);
+      color: #fff;
+      padding-left: 16px;
+    }
+
+    .sidebar-nav .nav-category {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--slate-400);
+      font-weight: 700;
+      padding: 16px 12px 6px;
+    }
+
+    /* Main Content */
+    .main-content {
+      flex: 1;
+      padding: 40px 60px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    /* Header Banner */
+    .doc-banner {
+      background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4338ca 100%);
+      color: #fff;
+      padding: 40px;
+      border-radius: var(--radius);
+      margin-bottom: 40px;
+      box-shadow: var(--shadow-lg);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .doc-banner h1 {
+      font-size: 32px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      margin-bottom: 12px;
+    }
+
+    .doc-banner p.subtitle {
+      font-size: 16px;
+      color: #c7d2fe;
+      max-width: 800px;
+      line-height: 1.5;
+    }
+
+    .banner-tags {
+      display: flex;
+      gap: 12px;
+      margin-top: 20px;
+      flex-wrap: wrap;
+    }
+
+    .banner-tag {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(8px);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    /* Classification Badges */
+    .tag-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 3px 10px;
+      border-radius: 9999px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-right: 6px;
+      vertical-align: middle;
+    }
+
+    .tag-assessment {
+      background: #eff6ff;
+      color: #1d4ed8;
+      border: 1px solid #bfdbfe;
+    }
+
+    .tag-decision {
+      background: #f5f3ff;
+      color: #6d28d9;
+      border: 1px solid #ddd6fe;
+    }
+
+    .tag-assumption {
+      background: #fefce8;
+      color: #a16207;
+      border: 1px solid #fef08a;
+    }
+
+    /* Section Styling */
+    section {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      padding: 32px;
+      margin-bottom: 32px;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-sm);
+    }
+
+    h2 {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--slate-900);
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid var(--slate-100);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    h3 {
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--slate-800);
+      margin: 24px 0 12px;
+    }
+
+    h4 {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--slate-700);
+      margin: 16px 0 8px;
+    }
+
+    p {
+      margin-bottom: 16px;
+      color: var(--slate-700);
+      font-size: 14.5px;
+    }
+
+    ul,
+    ol {
+      margin: 0 0 20px 24px;
+      color: var(--slate-700);
+      font-size: 14.5px;
+    }
+
+    li {
+      margin-bottom: 8px;
+    }
+
+    /* Visual Cards & Grids */
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+      margin: 20px 0;
+    }
+
+    .card {
+      background: var(--slate-50);
+      border: 1px solid var(--slate-200);
+      border-radius: 10px;
+      padding: 20px;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+      border-color: var(--primary);
+    }
+
+    .card.primary-border {
+      border-left: 4px solid var(--primary);
+    }
+
+    .card.secondary-border {
+      border-left: 4px solid var(--secondary);
+    }
+
+    .card.warning-border {
+      border-left: 4px solid var(--warning);
+    }
+
+    .card.success-border {
+      border-left: 4px solid var(--success);
+    }
+
+    .card.danger-border {
+      border-left: 4px solid var(--danger);
+    }
+
+    .card h4 {
+      margin-top: 0;
+      color: var(--slate-900);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    /* Tables */
+    .table-container {
+      overflow-x: auto;
+      margin: 20px 0;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13.5px;
+      text-align: left;
+    }
+
+    th {
+      background: var(--slate-100);
+      color: var(--slate-700);
+      font-weight: 700;
+      padding: 12px 16px;
+      border-bottom: 2px solid var(--border);
+      white-space: nowrap;
+    }
+
+    td {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      color: var(--slate-700);
+      vertical-align: top;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    tr:hover td {
+      background: var(--slate-50);
+    }
+
+    /* Diagram Containers */
+    .diagram-wrapper {
+      background: #fafbfc;
+      border: 1px solid var(--slate-200);
+      border-radius: 10px;
+      padding: 24px;
+      margin: 24px 0;
+      text-align: center;
+      overflow-x: auto;
+    }
+
+    .diagram-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--slate-600);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 16px;
+      display: block;
+      text-align: center;
+    }
+
+    .diagram-wrapper svg {
+      max-width: 100%;
+      height: auto;
+    }
+
+    /* Callouts / Alerts */
+    .callout {
+      padding: 16px 20px;
+      border-radius: 8px;
+      margin: 20px 0;
+      font-size: 14px;
+      border-left: 4px solid;
+    }
+
+    .callout-info {
+      background: #eff6ff;
+      border-color: #3b82f6;
+      color: #1e40af;
+    }
+
+    .callout-warning {
+      background: #fffbeb;
+      border-color: #f59e0b;
+      color: #92400e;
+    }
+
+    .callout-danger {
+      background: #fef2f2;
+      border-color: #ef4444;
+      color: #991b1b;
+    }
+
+    .callout-success {
+      background: #ecfdf5;
+      border-color: #10b981;
+      color: #065f46;
+    }
+
+    /* Collapsible Details */
+    details {
+      background: var(--slate-50);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      margin-bottom: 12px;
+      overflow: hidden;
+    }
+
+    summary {
+      padding: 14px 18px;
+      font-weight: 600;
+      cursor: pointer;
+      user-select: none;
+      color: var(--slate-800);
+      outline: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: background 0.15s ease;
+    }
+
+    summary:hover {
+      background: var(--slate-100);
+    }
+
+    details[open] summary {
+      border-bottom: 1px solid var(--border);
+      background: var(--slate-100);
+    }
+
+    .details-content {
+      padding: 18px;
+      background: #fff;
+    }
+
+    /* Step Timeline */
+    .timeline {
+      position: relative;
+      padding-left: 32px;
+      margin: 24px 0;
+    }
+
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 11px;
+      top: 6px;
+      bottom: 6px;
+      width: 2px;
+      background: var(--slate-300);
+    }
+
+    .timeline-item {
+      position: relative;
+      margin-bottom: 24px;
+    }
+
+    .timeline-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .timeline-dot {
+      position: absolute;
+      left: -32px;
+      top: 4px;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: var(--primary);
+      border: 4px solid #fff;
+      box-shadow: 0 0 0 1px var(--primary);
+    }
+
+    .timeline-dot.warning {
+      background: var(--warning);
+      box-shadow: 0 0 0 1px var(--warning);
+    }
+
+    .timeline-dot.danger {
+      background: var(--danger);
+      box-shadow: 0 0 0 1px var(--danger);
+    }
+
+    .timeline-dot.success {
+      background: var(--success);
+      box-shadow: 0 0 0 1px var(--success);
+    }
+
+    .timeline-title {
+      font-weight: 700;
+      font-size: 15px;
+      color: var(--slate-900);
+      margin-bottom: 4px;
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      padding: 40px;
+      color: var(--slate-400);
+      font-size: 13px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="app-container">
+    <!-- SIDEBAR NAVIGATION -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <span class="badge-doc">Document 01</span>
+        <h1>DailyBlog AI</h1>
+        <p>Product Requirements & User Journey Blueprint</p>
+      </div>
+
+      <nav class="sidebar-nav">
+        <ul>
+          <div class="nav-category">Foundation & Scope</div>
+          <li><a href="#sec-1">1. Executive Product Overview</a></li>
+          <li><a href="#sec-2">2. Problem Statement</a></li>
+          <li><a href="#sec-3">3. Product Objectives</a></li>
+          <li><a href="#sec-4">4. Product Scope</a></li>
+
+          <div class="nav-category">Roles & Governance</div>
+          <li><a href="#sec-5">5. Primary User Roles</a></li>
+          <li><a href="#sec-6">6. Role Hierarchy</a></li>
+          <li><a href="#sec-7">7. Permission Matrix</a></li>
+
+          <div class="nav-category">User Journeys</div>
+          <li><a href="#sec-8">8. Company Admin Journey</a></li>
+          <li><a href="#sec-9">9. Reviewer Journey</a></li>
+          <li><a href="#sec-10">10. Editor Journey</a></li>
+
+          <div class="nav-category">Onboarding & Access</div>
+          <li><a href="#sec-11">11. Account Creation & Auth</a></li>
+          <li><a href="#sec-12">12. Access Request Workflows</a></li>
+
+          <div class="nav-category">Context & Format Engine</div>
+          <li><a href="#sec-13">13. Company AI Context</a></li>
+          <li><a href="#sec-14">14. Global Blog Format</a></li>
+          <li><a href="#sec-15">15. Format Hierarchy</a></li>
+
+          <div class="nav-category">Creation & Editorial Flow</div>
+          <li><a href="#sec-16">16. AI Topic Suggestion Journey</a></li>
+          <li><a href="#sec-17">17. Blog Generation Journey</a></li>
+          <li><a href="#sec-18">18. Editor-AI Journey</a></li>
+          <li><a href="#sec-19">19. 15-Minute Control Window</a></li>
+          <li><a href="#sec-20">20. Edit Mode Deep Dive</a></li>
+
+          <div class="nav-category">Review & Governance</div>
+          <li><a href="#sec-21">21. Reviewer Notification Model</a></li>
+          <li><a href="#sec-22">22. Reviewer Decision Timeline</a></li>
+          <li><a href="#sec-23">23. Need Improvement Workflow</a></li>
+          <li><a href="#sec-24">24. Rescheduling Workflow</a></li>
+
+          <div class="nav-category">Scheduling & Distribution</div>
+          <li><a href="#sec-25">25. Publishing Schedule</a></li>
+          <li><a href="#sec-26">26. WordPress Publishing Journey</a></li>
+          <li><a href="#sec-27">27. Notification Architecture</a></li>
+
+          <div class="nav-category">End-to-End Blueprint</div>
+          <li><a href="#sec-28">28. End-to-End Master Journey</a></li>
+          <li><a href="#sec-29">29. Functional Requirements (FR)</a></li>
+          <li><a href="#sec-30">30. Product Security Requirements</a></li>
+          <li><a href="#sec-31">31. Tenant Isolation Blueprint</a></li>
+          <li><a href="#sec-32">32. Human-in-the-Loop Safeguards</a></li>
+          <li><a href="#sec-33">33. Product Success Criteria</a></li>
+          <li><a href="#sec-34">34. Assumptions & Open Questions</a></li>
+        </ul>
+      </nav>
+    </aside>
+
+    <!-- MAIN CONTENT AREA -->
+    <main class="main-content">
+
+      <!-- BANNER -->
+      <header class="doc-banner">
+        <h1>DailyBlog AI — Product Requirements & User Journey Blueprint</h1>
+        <p class="subtitle">
+          Comprehensive Product Requirements Document (PRD) and Multi-Role Operational Specification.
+          Defines the multi-tenant architecture, human-in-the-loop governance gates, conversational AI authoring,
+          and automated publishing pipeline for enterprise blog operations.
+        </p>
+        <div class="banner-tags">
+          <span class="banner-tag">Specification Type: Document 1 (PRD)</span>
+          <span class="banner-tag">Target Architecture: Multi-Company Platform</span>
+          <span class="banner-tag">Status: Approved Product Design</span>
+          <span class="banner-tag">Security Class: Enterprise Isolated</span>
+        </div>
+      </header>
+
+      <!-- SECTION 1 -->
+      <section id="sec-1">
+        <h2>
+          1. Executive Product Overview
+          <span class="tag-pill tag-assessment">Assessment & Product Core</span>
+        </h2>
+        <p>
+          <strong>DailyBlog AI</strong> is an enterprise-grade, multi-company AI-powered blog generation, human review,
+          and automated publishing system.
+          It is designed to eliminate the operational friction, creative fatigue, and high costs associated with
+          maintaining an active, search-optimized company blog.
+        </p>
+        <p>
+          Unlike consumer-grade AI text generators that output unstructured copy directly to the public web, DailyBlog
+          AI enforces a strict
+          <strong>Human-in-the-Loop (HITL)</strong> governance model. The platform pairs AI topic generation and
+          drafting capabilities with
+          a rigorous multi-role editorial hierarchy:
+        </p>
+        <div class="card-grid">
+          <div class="card primary-border">
+            <h4>Multi-Tenant Company Workspaces</h4>
+            <p>
+              <span class="tag-pill tag-decision">Product Decision</span>
+              Strict tenant isolation ensures that company-specific data, knowledge, memory, conversations, blogs, and
+              integrations are accessible only within the authenticated company's scope. Every company operates inside a
+              private silo where its profile,
+              knowledge base, tone-of-voice memory, prompts, blog drafts, review comments, and CMS publishing
+              credentials are completely isolated.
+            </p>
+          </div>
+          <div class="card secondary-border">
+            <h4>Co-Pilot Editorial Collaboration</h4>
+            <p>
+              <span class="tag-pill tag-decision">Product Decision</span>
+              Blog creation is not a black-box background script. It begins with intelligent topic suggestions, advances
+              through structured drafting,
+              and provides the human <strong>Editor</strong> with an active 15-minute intervention window and a
+              collaborative conversational Edit Mode.
+            </p>
+          </div>
+          <div class="card warning-border">
+            <h4>Enforced Editorial Review Windows</h4>
+            <p>
+              <span class="tag-pill tag-decision">Product Decision</span>
+              An assigned <strong>Reviewer</strong> acts as the quality firewall. Time-gated decision windows prevent
+              content from reaching external
+              production without explicit sign-off, section-level improvement loops, or authorized rescheduling.
+            </p>
+          </div>
+          <div class="card success-border">
+            <h4>Automated Headless Publishing</h4>
+            <p>
+              <span class="tag-pill tag-assessment">Assessment Requirement</span>
+              Verified and approved blogs automatically dispatch to company CMS platforms (spearheaded by WordPress),
+              complete with SEO metadata,
+              structured headings, and automated post-publishing state reconciliation.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 2 -->
+      <section id="sec-2">
+        <h2>
+          2. Problem Statement
+          <span class="tag-pill tag-assessment">Assessment Requirement</span>
+        </h2>
+        <p>
+          Modern companies must maintain an active digital footprint to drive organic discovery, engage potential
+          buyers, and reinforce brand authority.
+          However, consistent content marketing presents acute operational bottlenecks:
+        </p>
+        <ul>
+          <li><strong>Resource & Time Drain:</strong> Researching, drafting, optimizing, and formatting high-caliber
+            articles every single day requires dedicated copywriting staff or expensive agency retainers.</li>
+          <li><strong>Ideation Fatigue & Irregular Cadence:</strong> Marketing teams quickly exhaust immediate topic
+            ideas, leading to erratic publishing schedules, broken SEO momentum, and audience drop-off.</li>
+          <li><strong>Brand Voice Drift & Fragmented SEO:</strong> Content written across different personnel or
+            unconstrained AI prompts suffers from inconsistent tone, missing semantic metadata, and poor keyword
+            strategy.</li>
+          <li><strong>Unregulated AI Hallucination Risks:</strong> Direct-to-publish automated bots risk publishing
+            factual hallucinations, off-brand messaging, or embarrassing errors directly to company production websites.
+          </li>
+        </ul>
+        <div class="callout callout-info">
+          <strong>The Solution Mandate:</strong> DailyBlog AI solves this by automating the heavy cognitive lift of
+          trend research, structural outlining,
+          and first-draft composition, while anchoring the process in company-specific context and requiring human
+          oversight before any article goes live.
+        </div>
+      </section>
+
+      <!-- SECTION 3 -->
+      <section id="sec-3">
+        <h2>
+          3. Product Objectives
+          <span class="tag-pill tag-assessment">Assessment Requirement</span>
+        </h2>
+        <p>The primary objectives defined for the DailyBlog AI platform are:</p>
+        <div class="card-grid">
+          <div class="card">
+            <h4>1. Daily Generation Automation</h4>
+            <p>Deliver dependable, scheduled end-to-end daily content production without manual blank-page drafting.</p>
+          </div>
+          <div class="card">
+            <h4>2. Company & Industry Tailoring</h4>
+            <p>Ground all topic suggestions and written prose in company-specific products, audience profiles, and
+              verified knowledge.</p>
+          </div>
+          <div class="card">
+            <h4>3. Built-In Technical SEO</h4>
+            <p>Generate search-optimized page titles, meta descriptions, semantic heading hierarchies (H1/H2/H3), and
+              keyword targets.</p>
+          </div>
+          <div class="card">
+            <h4>4. Brand Voice Consistency</h4>
+            <p>Maintain uniform tone, reading level, persona, and stylistic compliance across all generated articles.
+            </p>
+          </div>
+          <div class="card">
+            <h4>5. Cost & Overhead Reduction</h4>
+            <p>Compress content turnaround cycles from days to minutes, slashing marginal agency and freelance expenses.
+            </p>
+          </div>
+          <div class="card">
+            <h4>6. Enforced Human Review</h4>
+            <p>Equip human Editors and Reviewers with comprehensive approval, inline refinement, and feedback loops.</p>
+          </div>
+          <div class="card">
+            <h4>7. Scheduled Headless Publishing</h4>
+            <p>Seamlessly dispatch approved content directly to company websites at predetermined daily publishing
+              slots.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 4 -->
+      <section id="sec-4">
+        <h2>
+          4. Product Scope
+          <span class="tag-pill tag-decision">Product Decision</span>
+        </h2>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Functional Domain</th>
+                <th>In Scope for Document 1 (PRD Core)</th>
+                <th>Out of Scope / Deferred (Document 2 / Later)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Multi-Tenancy</strong></td>
+                <td>Multi-company account model, complete data isolation, company profile parameters.</td>
+                <td>Cross-company syndicated marketing, multi-branch sub-account billing federation.</td>
+              </tr>
+              <tr>
+                <td><strong>User Roles</strong></td>
+                <td>Company Admin, Reviewer, and Editor roles with strict vertical access controls.</td>
+                <td>Freelance guest-author public marketplaces, multi-tier agency client hierarchies.</td>
+              </tr>
+              <tr>
+                <td><strong>Content Generation</strong></td>
+                <td>AI topic suggestion, structural drafting, tone alignment, SEO metadata synthesis.</td>
+                <td>Video generation, podcast synthesis, auto-generated interactive calculators.</td>
+              </tr>
+              <tr>
+                <td><strong>Editorial Experience</strong></td>
+                <td>15-minute handoff timer, conversational AI Edit Mode, doc/PDF upload, voice-to-text.</td>
+                <td>Real-time multi-cursor Google Docs-style simultaneous collaboration.</td>
+              </tr>
+              <tr>
+                <td><strong>Publishing Targets</strong></td>
+                <td>WordPress REST API integration using WordPress Application Passwords (initial integration; designed
+                  for extensibility to additional providers/authentication mechanisms later).</td>
+                <td>Shopify, Ghost, Webflow, Medium, Substack, LinkedIn Articles (Roadmap).</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- SECTION 5 -->
+      <section id="sec-5">
+        <h2>
+          5. Primary User Roles
+          <span class="tag-pill tag-decision">Approved Product Design</span>
+        </h2>
+        <p>
+          DailyBlog AI strictly defines three company-facing roles. While a platform-level System Administrator exists
+          conceptually for infrastructure maintenance,
+          all operational business workflows occur strictly within these three roles:
+        </p>
+
+        <div class="card-grid">
+          <div class="card primary-border">
+            <h4>1. Company Admin <span class="tag-pill tag-decision">Executive Owner</span></h4>
+            <ul>
+              <li>Registers the company workspace and completes 4-stage onboarding.</li>
+              <li>Configures primary company metadata, logo, industry, and brand parameters.</li>
+              <li>Manages Reviewer onboarding, approvals, and credential revocation.</li>
+              <li>Configures integrations (e.g. WordPress API credentials) and notification emails.</li>
+              <li>Audits Editor lists, review statuses, accepted blogs, and conversation logs.</li>
+              <li><em>Restriction: Cannot alter the day-to-day publishing schedule owned by Reviewers.</em></li>
+            </ul>
+          </div>
+
+          <div class="card warning-border">
+            <h4>2. Reviewer <span class="tag-pill tag-decision">Editorial Gatekeeper</span></h4>
+            <ul>
+              <li>Requests access from Company Admin and receives secure temporary credentials.</li>
+              <li>Onboards, evaluates, and manages Editors within their organizational purview.</li>
+              <li>Owns and configures the company Weekly Publishing Schedule (Mon–Sun 24h).</li>
+              <li>Receives submitted drafts in an active notification queue.</li>
+              <li>Executes time-gated review decisions: <em>Approve, Reject, Need Improvement, Reschedule</em>.</li>
+              <li>Supplies section-level improvement feedback and audio/voice comments to Editors.</li>
+            </ul>
+          </div>
+
+          <div class="card secondary-border">
+            <h4>3. Editor <span class="tag-pill tag-decision">Content Co-Pilot</span></h4>
+            <ul>
+              <li>Registers, links to company, and submits access requests to an active Reviewer.</li>
+              <li>Reviews daily AI topic suggestions and selects or supplies custom article topics.</li>
+              <li>Receives initial drafts within the 15-minute intervention control window.</li>
+              <li>Enters interactive Edit Mode: rewrites copy, chats with AI, uploads reference PDFs.</li>
+              <li>Defines and iterates on the company's versioned Global Blog Format with AI assistance.</li>
+              <li>Submits completed articles to Reviewers; views publishing schedule in read-only mode.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 6 -->
+      <section id="sec-6">
+        <h2>
+          6. Role Hierarchy
+          <span class="tag-pill tag-decision">Approved Product Design</span>
+        </h2>
+        <p>
+          The role hierarchy establishes a strict chain of authority and delegated administration:
+        </p>
+
+        <div class="diagram-wrapper">
+          <span class="diagram-title">Visual 1: Enterprise Role Hierarchy & Administrative Flow</span>
+          <svg viewBox="0 0 850 260" xmlns="http://www.w3.org/2000/svg">
+            <!-- Company Admin Node -->
+            <rect x="275" y="15" width="300" height="60" rx="10" fill="#312e81" stroke="#4f46e5" stroke-width="2" />
+            <text x="425" y="40" fill="#ffffff" font-size="14" font-weight="bold" text-anchor="middle">Company
+              Admin</text>
+            <text x="425" y="58" fill="#c7d2fe" font-size="11" text-anchor="middle">Controls Reviewer Access •
+              Configures CMS Integrations</text>
+
+            <!-- Connector 1 -->
+            <line x1="425" y1="75" x2="425" y2="105" stroke="#6366f1" stroke-width="2" marker-end="url(#arrow)" />
+
+            <!-- Reviewer Node -->
+            <rect x="275" y="105" width="300" height="60" rx="10" fill="#1e293b" stroke="#0ea5e9" stroke-width="2" />
+            <text x="425" y="130" fill="#ffffff" font-size="14" font-weight="bold" text-anchor="middle">Reviewer</text>
+            <text x="425" y="148" fill="#94a3b8" font-size="11" text-anchor="middle">Controls Editor Access • Manages
+              Publishing Schedule</text>
+
+            <!-- Connector 2 -->
+            <line x1="425" y1="165" x2="425" y2="195" stroke="#0ea5e9" stroke-width="2" marker-end="url(#arrow)" />
+
+            <!-- Editor Node -->
+            <rect x="275" y="195" width="300" height="60" rx="10" fill="#0f172a" stroke="#8b5cf6" stroke-width="2" />
+            <text x="425" y="220" fill="#ffffff" font-size="14" font-weight="bold" text-anchor="middle">Editor</text>
+            <text x="425" y="238" fill="#cbd5e1" font-size="11" text-anchor="middle">Selects Topics • Edits Drafts with
+              AI • Submits to Reviewer</text>
+
+            <!-- Marker Definition -->
+            <defs>
+              <marker id="arrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6"
+                orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#6366f1" />
+              </marker>
+            </defs>
+          </svg>
+        </div>
+
+        <div class="callout callout-info">
+          <strong>Delegation Rule:</strong> The Company Admin directly governs Reviewers but does not manage individual
+          Editor day-to-day accounts.
+          Reviewers manage and provision the Editors who submit drafts to them, establishing clear operational
+          accountability.
+        </div>
+      </section>
+
+      <!-- SECTION 7 -->
+      <section id="sec-7">
+        <h2>
+          7. Permission Matrix
+          <span class="tag-pill tag-decision">Approved Product Design</span>
+        </h2>
+        <p>
+          The following matrix details explicit capability boundaries across the three organizational roles:
+        </p>
+
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Functional Capability / System Area</th>
+                <th>Company Admin</th>
+                <th>Reviewer</th>
+                <th>Editor</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Register Organization & Workspace</td>
+                <td><strong style="color:var(--success);">Full Access (Creator)</strong></td>
+                <td>No Access</td>
+                <td>No Access</td>
+              </tr>
+              <tr>
+                <td>Configure Company Profile & Brand Voice</td>
+                <td><strong style="color:var(--success);">Manage & Update</strong></td>
+                <td>Read-Only</td>
+                <td>Read-Only</td>
+              </tr>
+              <tr>
+                <td>Reviewer Access Control (Approve/Revoke)</td>
+                <td><strong style="color:var(--success);">Full Authority</strong></td>
+                <td>No Access</td>
+                <td>No Access</td>
+              </tr>
+              <tr>
+                <td>Editor Access Control (Approve/Deactivate)</td>
+                <td>View Only</td>
+                <td><strong style="color:var(--success);">Full Authority</strong></td>
+                <td>No Access</td>
+              </tr>
+              <tr>
+                <td>Publishing Schedule Management (Mon–Sun)</td>
+                <td>View Only</td>
+                <td><strong style="color:var(--success);">Create / Modify / Toggle</strong></td>
+                <td>View Only</td>
+              </tr>
+              <tr>
+                <td>Select Daily Topic / Provide Custom Topic</td>
+                <td>No Direct Role</td>
+                <td>No Direct Role</td>
+                <td><strong style="color:var(--success);">Primary Actor</strong></td>
+              </tr>
+              <tr>
+                <td>Direct AI Conversation & 15-Min Control</td>
+                <td>Audit History Only</td>
+                <td>Audit History Only</td>
+                <td><strong style="color:var(--success);">Primary Actor</strong></td>
+              </tr>
+              <tr>
+                <td>Draft Editing & PDF/Doc Reference Upload</td>
+                <td>No Direct Role</td>
+                <td>No Direct Role</td>
+                <td><strong style="color:var(--success);">Active Edit Mode</strong></td>
+              </tr>
+              <tr>
+                <td>Define Global Blog Format</td>
+                <td>View Only</td>
+                <td>View Only</td>
+                <td><strong style="color:var(--success);">Collaborate with AI</strong></td>
+              </tr>
+              <tr>
+                <td>Review Decision: Approve / Reject / Reschedule</td>
+                <td>No Access</td>
+                <td><strong style="color:var(--success);">Full Authority (Time-Gated)</strong></td>
+                <td>No Access</td>
+              </tr>
+              <tr>
+                <td>Submit "Need Improvement" Comments & Voice</td>
+                <td>No Access</td>
+                <td><strong style="color:var(--success);">Full Authority</strong></td>
+                <td>Receives in Chat Thread</td>
+              </tr>
+              <tr>
+                <td>Configure WordPress CMS Integrations</td>
+                <td><strong style="color:var(--success);">Primary Admin</strong></td>
+                <td>View Status</td>
+                <td>View Status</td>
+              </tr>
+              <tr>
+                <td>Accepted Blog Archive</td>
+                <td>View Catalog</td>
+                <td>View Catalog</td>
+                <td>View Catalog</td>
+              </tr>
+              <tr>
+                <td>Account Termination</td>
+                <td>Delete Entire Org (Destructive)</td>
+                <td>Deactivate Own Account</td>
+                <td>Deactivate Own Account</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- SECTION 8 -->
+      <section id="sec-8">
+        <h2>
+          8. Company Admin Journey &amp; Dashboard Specification
+          <span class="tag-pill tag-decision">Approved Product Design</span>
+        </h2>
+        <p>
+          The Company Admin acts as the executive sponsor who establishes the organization's tenant presence,
+          configures essential marketing baselines, oversees security integrations, and monitors the overall pipeline:
+        </p>
+
+        <div class="timeline">
+          <div class="timeline-item">
+            <div class="timeline-dot"></div>
+            <div class="timeline-title">Stage 1: Enterprise Registration &amp; Identity Verification</div>
+            <p>Admin navigates to DailyBlog AI, completes the 4-page registration, validates corporate email via OTP,
+              solves CAPTCHA, and sets encrypted root credentials.</p>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-dot"></div>
+            <div class="timeline-title">Stage 2: Workspace Setup &amp; External CMS Configuration</div>
+            <p>Admin inputs brand guidelines, uploads high-res logos, selects industry vertical, defines up to 5
+              integrations, and inputs WordPress REST API credentials.</p>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-dot"></div>
+            <div class="timeline-title">Stage 3: Reviewer Provisioning</div>
+            <p>Admin monitors incoming Reviewer access requests. Evaluates corporate domain email and employee ID, then
+              accepts or rejects requests within the 24-hour SLA.</p>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-dot success"></div>
+            <div class="timeline-title">Stage 4: Ongoing Executive Oversight</div>
+            <p>Admin tracks the Publishing Status dashboard, audits accepted blog archives, manages reviewer access, and
+              reviews AI conversation logs for brand safety compliance.</p>
+          </div>
+        </div>
+
+        <h3>Company Admin Dashboard Specification</h3>
+        <div class="card primary-border">
+          <h4>Dashboard Header: <code>[Company Logo]</code> &amp; <code>[Company Name]</code></h4>
+          <p>The persistent header anchors all administrative screens, displaying tenant brand identity and active
+            status.</p>
+        </div>
+
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Dashboard Navigation Element</th>
+                <th>Functional Scope &amp; Admin Capabilities</th>
+                <th>Operational Rules &amp; Constraints</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Basic Settings</strong></td>
+                <td>Update company profile, industry, description (max ~200 words), company type, and regional market
+                  settings.</td>
+                <td>Tenant-isolated; updates take effect across future AI generation cycles.</td>
+              </tr>
+              <tr>
+                <td><strong>Notification / Help Email</strong></td>
+                <td>Configure primary organizational alert email for pipeline alerts, failure notifications, and team
+                  inquiries.</td>
+                <td>Validated via confirmation token.</td>
+              </tr>
+              <tr>
+                <td><strong>Change Password</strong></td>
+                <td>Update root admin password; requires current password verification and enforces enterprise
+                  complexity.</td>
+                <td>Invalidates existing sessions across unauthenticated devices.</td>
+              </tr>
+              <tr>
+                <td><strong>Reviewer List</strong></td>
+                <td>View active and pending Reviewers. Full authority to accept pending access requests or revoke/remove
+                  Reviewer access.</td>
+                <td>Revoking Reviewer access disables their ability to approve blogs or modify schedules immediately.
+                </td>
+              </tr>
+              <tr>
+                <td><strong>Editor List</strong></td>
+                <td>View full registry of company Editors, their assigned Reviewers, and account activity status.</td>
+                <td><strong>View Only:</strong> Company Admin can inspect Editor details but does not directly provision
+                  Editor day-to-day accounts.</td>
+              </tr>
+              <tr>
+                <td><strong>DailyBlog AI Chats</strong></td>
+                <td>Audit historical and active AI conversation threads conducted by Editors for brand compliance and
+                  prompt monitoring.</td>
+                <td>Read-only audit access. Admin does not participate in active conversational prompting.</td>
+              </tr>
+              <tr>
+                <td><strong>Plugins</strong></td>
+                <td>Manage up to 5 social and CMS publishing plugins (e.g. WordPress REST API authentication,
+                  analytics).</td>
+                <td>Credentials securely stored and encrypted; connection status health checks available.</td>
+              </tr>
+              <tr>
+                <td><strong>Publishing Status</strong></td>
+                <td>Inspect status of scheduled, in-review, published, or failed blog posts across all publication
+                  slots.</td>
+                <td><strong>Read-Only:</strong> Admin can monitor publishing schedule and status, but <em>cannot control
+                    or modify the Reviewer-owned publishing schedule</em>.</td>
+              </tr>
+              <tr>
+                <td><strong>Accepted Blog List</strong></td>
+                <td>Comprehensive archive of all approved and published articles, displaying Date, Time, Title, View
+                  action, and publication status where applicable (with published WordPress URL shown when available
+                  from the integration).</td>
+                <td>Searchable and filterable by date, author Editor, and approving Reviewer.</td>
+              </tr>
+              <tr>
+                <td><strong>Blog Format</strong></td>
+                <td>Inspect the active versioned Company Global Blog Format defined by Editors and AI.</td>
+                <td>View-only visibility into structural rules, heading formats, and SEO parameter baselines.</td>
+              </tr>
+              <tr>
+                <td><strong>Logout</strong></td>
+                <td>Secure session termination; clears client tokens and invalidates active session state.</td>
+                <td>Standard secure sign-out.</td>
+              </tr>
+              <tr>
+                <td><strong>Delete Account</strong></td>
+                <td>Destructive action: Permanently deletes the company organization workspace and revokes all
+                  subordinate access.</td>
+                <td><strong>Safety Gates:</strong> Requires explicit confirmation dialog and administrative password
+                  re-authentication. Historical audit logs preserved where legally required.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- SECTION 9 -->
+      <section id="sec-9">
+        <h2>
+          9. Reviewer Journey &amp; Dashboard Specification
+          <span class="tag-pill tag-decision">Approved Product Design</span>
+        </h2>
+        <p>
+          The Reviewer operates as the quality firewall and publishing controller. The Reviewer guarantees brand
+          adherence,
+          editorial excellence, and schedule adherence:
+        </p>
+        <div class="timeline">
+          <div class="timeline-item">
+            <div class="timeline-dot"></div>
+            <div class="timeline-title">Stage 1: Access Request &amp; First-Login Onboarding</div>
+            <p>Reviewer inputs name, corporate email, and company ID, completing OTP and CAPTCHA. Admin accepts within
+              ~24h. Reviewer uses a temporary password (valid 42h) and is forced to establish a permanent password on
+              first login.</p>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-dot"></div>
+            <div class="timeline-title">Stage 2: Publishing Schedule &amp; Editor Management</div>
+            <p>Reviewer configures the weekly publishing calendar (Monday–Sunday 24h slots) and approves/deactivates
+              incoming Editor access requests.</p>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-dot warning"></div>
+            <div class="timeline-title">Stage 3: Active Review Queue Processing</div>
+            <p>Reviewer receives blog submissions in their action-item queue. Evaluates content quality against
+              time-gated decision windows (Approve, Need Improvement, Reject, Reschedule).</p>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-dot success"></div>
+            <div class="timeline-title">Stage 4: Feedback Loops &amp; Publication Clearance</div>
+            <p>If revisions are required, Reviewer records voice notes or section comments that inject directly into the
+              Editor's AI chat thread. If approved, the post advances to automated WordPress publishing.</p>
+          </div>
+        </div>
+
+        <h3>Reviewer Dashboard Specification</h3>
+        <div class="card secondary-border">
+          <h4>Company Header: Branded Workspace Bar</h4>
+          <p>Displays company identity, active Reviewer name, role badge, and quick access to global status.</p>
+        </div>
+
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Dashboard Navigation Element</th>
+                <th>Functional Scope &amp; Reviewer Capabilities</th>
+                <th>Operational Rules &amp; Constraints</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Notifications (Review Queue)</strong></td>
+                <td>Dynamic list of actionable review tasks. Each item tracks Blog ID, Editor, Submission Time, Target
+                  Publish Time, and Status.</td>
+                <td>Items close automatically upon decision (Approve / Reject / Need Improvement / Reschedule) or when
+                  deadline passes.</td>
+              </tr>
+              <tr>
+                <td><strong>Basic Settings</strong></td>
+                <td>Manage personal reviewer profile details, contact preferences, and editorial notification
+                  thresholds.</td>
+                <td>Tenant-scoped; cannot alter core company information.</td>
+              </tr>
+              <tr>
+                <td><strong>Change Password</strong></td>
+                <td>Update personal login credential with security complexity checks.</td>
+                <td>Mandatory on first login using temporary 42-hour credential.</td>
+              </tr>
+              <tr>
+                <td><strong>Editor List</strong></td>
+                <td>Direct management of Editors submitting to this Reviewer: accept pending requests, view Editor
+                  information/company-issued ID, or deactivate Editors.</td>
+                <td>Reviewer holds direct authority over Editor provisioning and deactivation.</td>
+              </tr>
+              <tr>
+                <td><strong>DailyBlog AI Chats</strong></td>
+                <td>Inspect Editor ↔ AI conversation threads tied to active or historical reviews to understand draft
+                  evolution.</td>
+                <td>Provides full conversational visibility into prompts, uploaded PDFs, and editorial instructions.
+                </td>
+              </tr>
+              <tr>
+                <td><strong>Plugins</strong></td>
+                <td>View active publishing integrations (WordPress) and connection health status.</td>
+                <td>Read-only operational status check; credential configuration reserved for Company Admin.</td>
+              </tr>
+              <tr>
+                <td><strong>Accepted Blogs</strong></td>
+                <td>Full historical ledger of all blogs approved by this Reviewer with live publishing verification
+                  links.</td>
+                <td>Permanent historical audit trail.</td>
+              </tr>
+              <tr>
+                <td><strong>Blog Format</strong></td>
+                <td>Inspect active Company Global Blog Format to ensure submitted drafts conform to organizational
+                  expectations.</td>
+                <td>Reference baseline for editorial compliance evaluations.</td>
+              </tr>
+              <tr>
+                <td><strong>Publishing Schedule</strong></td>
+                <td><strong>Full Control:</strong> Configure weekly schedule (Monday–Sunday, 24-hour slots, ON/OFF
+                  toggles) and execute ad-hoc rescheduling.</td>
+                <td>Sole role with modification authority over company publishing cadence.</td>
+              </tr>
+              <tr>
+                <td><strong>Logout</strong></td>
+                <td>Secure session termination.</td>
+                <td>Standard token invalidation.</td>
+              </tr>
+              <tr>
+                <td><strong>Delete Account</strong></td>
+                <td>Deactivates the Reviewer's personal account and revokes active access.</td>
+                <td><strong>Safety Rule:</strong> Must NOT delete the company. Historical reviews, feedback, and audit
+                  logs are preserved.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- SECTION 10 -->
+      <section id="sec-10">
+        <h2>
+          10. Editor Journey &amp; Dashboard Specification
+          <span class="tag-pill tag-decision">Approved Product Design</span>
+        </h2>
+        <p>
+          The Editor is the primary content co-pilot who orchestrates AI ideation, selects daily topics, refines drafts,
+          and defines the company's reusable blog format:
+        </p>
+        <div class="timeline">
+          <div class="timeline-item">
+            <div class="timeline-dot"></div>
+            <div class="timeline-title">Stage 1: Reviewer-Linked Onboarding</div>
+            <p>Editor registers, verifies email OTP/CAPTCHA, selects an active Reviewer, and submits an access request.
+              Upon approval, Editor uses a 48h temporary password and creates a permanent credential.</p>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-dot"></div>
+            <div class="timeline-title">Stage 2: Format Co-Creation &amp; Daily Topic Selection</div>
+            <p>Editor uses an AI dialogue to generate the company Global Blog Format. During daily cycles, Editor
+              reviews AI topic suggestions and either selects one or enters a bespoke topic.</p>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-dot warning"></div>
+            <div class="timeline-title">Stage 3: 15-Minute Draft Control Window &amp; Edit Mode</div>
+            <p>When the initial draft is ready, Editor has 15 minutes to review. Editor can immediately send to Reviewer
+              or enter Edit Mode to rewrite sections, attach PDFs, and prompt the AI.</p>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-dot success"></div>
+            <div class="timeline-title">Stage 4: Feedback Iteration &amp; Final Submission</div>
+            <p>If the Reviewer flags the post for "Need Improvement", the feedback appears directly in the existing AI
+              conversation. Editor collaborates with the AI to resolve comments and re-submits.</p>
+          </div>
+        </div>
+
+        <h3>Editor Dashboard Specification</h3>
+        <div class="card warning-border">
+          <h4>Company Header: Branded Workspace Bar</h4>
+          <p>Displays company identity, Editor profile, assigned Reviewer indicator, and cycle progress.</p>
+        </div>
+
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Dashboard Navigation Element</th>
+                <th>Functional Scope &amp; Editor Capabilities</th>
+                <th>Operational Rules &amp; Constraints</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Today's Chat</strong></td>
+                <td>Primary collaborative canvas. Host for today's daily cycle: topic suggestions, draft preview, Edit
+                  Mode, and Reviewer feedback.</td>
+                <td>Single unified thread per daily cycle. Strictly maintains context across all cycle phases.</td>
+              </tr>
+              <tr>
+                <td><strong>Notifications</strong></td>
+                <td>Informational activity stream: approvals, rejections, Reviewer improvement notes, and plugin alerts.
+                </td>
+                <td>Distinct from Reviewer action queue; serves as chronological event feed.</td>
+              </tr>
+              <tr>
+                <td><strong>Profile</strong></td>
+                <td>View personal account details and assigned Reviewer.</td>
+                <td>Profile attribution within company workspace.</td>
+              </tr>
+              <tr>
+                <td><strong>Basic Settings</strong></td>
+                <td>Configure personal workspace preferences and voice-to-text input settings.</td>
+                <td>Personalization only; cannot alter company brand context.</td>
+              </tr>
+              <tr>
+                <td><strong>Change Password</strong></td>
+                <td>Update login credentials. Enforced upon first sign-in using 48-hour temporary password.</td>
+                <td>Standard cryptographic password update.</td>
+              </tr>
+              <tr>
+                <td><strong>Previous Chats</strong></td>
+                <td>Browse and reference past daily AI conversations, brainstorming sessions, and historical draft
+                  iterations.</td>
+                <td>Read-only archive providing historical continuity and reference.</td>
+              </tr>
+              <tr>
+                <td><strong>Accepted Blog List</strong></td>
+                <td>Catalog of successfully approved and published articles generated by the team.</td>
+                <td>Read-only access for reference and content benchmarking.</td>
+              </tr>
+              <tr>
+                <td><strong>Plugins</strong></td>
+                <td>View connected publishing channels (e.g. WordPress) to confirm target distribution channels.</td>
+                <td>Read-only visibility; cannot edit integration credentials.</td>
+              </tr>
+              <tr>
+                <td><strong>Blog Format</strong></td>
+                <td>Collaborate with AI to define, refine, and version the company's Global Blog Format.</td>
+                <td>Defines future baseline templates; does not generate an immediate blog post.</td>
+              </tr>
+              <tr>
+                <td><strong>Publishing Schedule</strong></td>
+                <td>View the company weekly publishing timetable and designated daily publication hours.</td>
+                <td><strong>View Only:</strong> Editor cannot alter or reschedule publishing time slots.</td>
+              </tr>
+              <tr>
+                <td><strong>Logout</strong></td>
+                <td>Secure session termination.</td>
+                <td>Standard token invalidation.</td>
+              </tr>
+              <tr>
+                <td><strong>Delete Account</strong></td>
+                <td>Deactivates Editor personal account.</td>
+                <td>Must NOT delete company. Preserves past drafts and chat logs for organizational audit.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- SECTION 11 -->
+      <section id="sec-11">
+        <h2>
+          11. Account Creation and Authentication
+          <span class="tag-pill tag-decision">Approved Product Design</span>
+        </h2>
+        <p>
+          The Company Admin registration is structured across four deliberate, security-governed steps to capture
+          corporate identity and establish strict tenant isolation:
+        </p>
+
+        <div class="diagram-wrapper">
+          <span class="diagram-title">Visual 2: 4-Stage Company Admin Registration Architecture</span>
+          <svg viewBox="0 0 920 180" xmlns="http://www.w3.org/2000/svg">
+            <!-- Step 1 -->
+            <rect x="20" y="30" width="190" height="110" rx="8" fill="#ffffff" stroke="#4f46e5" stroke-width="2" />
+            <rect x="20" y="30" width="190" height="28" rx="8" fill="#4f46e5" />
+            <text x="115" y="49" fill="#ffffff" font-size="12" font-weight="bold" text-anchor="middle">PAGE 1: Company
+              Info</text>
+            <text x="32" y="80" fill="#334155" font-size="11">• Company Name (Req)</text>
+            <text x="32" y="98" fill="#334155" font-size="11">• Description (&lt;200 w)</text>
+            <text x="32" y="116" fill="#334155" font-size="11">• Logo (JPG/PNG) &amp; Email</text>
+            <text x="32" y="132" fill="#334155" font-size="11">• Industry &amp; Region</text>
+
+            <!-- Arrow 1 -->
+            <line x1="210" y1="85" x2="245" y2="85" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrow-reg)" />
+
+            <!-- Step 2 -->
+            <rect x="250" y="30" width="190" height="110" rx="8" fill="#ffffff" stroke="#0ea5e9" stroke-width="2" />
+            <rect x="250" y="30" width="190" height="28" rx="8" fill="#0ea5e9" />
+            <text x="345" y="49" fill="#ffffff" font-size="12" font-weight="bold" text-anchor="middle">PAGE 2:
+              Authentication</text>
+            <text x="262" y="80" fill="#334155" font-size="11">• Email OTP Verification</text>
+            <text x="262" y="98" fill="#334155" font-size="11">• Visual CAPTCHA Solve</text>
+            <text x="262" y="116" fill="#ef4444" font-size="11">• Max 3 OTP / 24h</text>
+            <text x="262" y="132" fill="#ef4444" font-size="11">• Max 3 CAPTCHA / 24h</text>
+
+            <!-- Arrow 2 -->
+            <line x1="440" y1="85" x2="475" y2="85" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrow-reg)" />
+
+            <!-- Step 3 -->
+            <rect x="480" y="30" width="190" height="110" rx="8" fill="#ffffff" stroke="#f59e0b" stroke-width="2" />
+            <rect x="480" y="30" width="190" height="28" rx="8" fill="#f59e0b" />
+            <text x="575" y="49" fill="#ffffff" font-size="12" font-weight="bold" text-anchor="middle">PAGE 3:
+              Configuration</text>
+            <text x="492" y="80" fill="#334155" font-size="11">• Notification / Help Email</text>
+            <text x="492" y="98" fill="#334155" font-size="11">• Plugins (Max 5 Config)</text>
+            <text x="492" y="116" fill="#334155" font-size="11">• WordPress API Credentials</text>
+            <text x="492" y="132" fill="#334155" font-size="11">• Policy &amp; Consent Acceptance</text>
+
+            <!-- Arrow 3 -->
+            <line x1="670" y1="85" x2="705" y2="85" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrow-reg)" />
+
+            <!-- Step 4 -->
+            <rect x="710" y="30" width="190" height="110" rx="8" fill="#ffffff" stroke="#10b981" stroke-width="2" />
+            <rect x="710" y="30" width="190" height="28" rx="8" fill="#10b981" />
+            <text x="805" y="49" fill="#ffffff" font-size="12" font-weight="bold" text-anchor="middle">PAGE 4: Password
+              &amp; Root</text>
+            <text x="722" y="80" fill="#334155" font-size="11">• Create Strong Password</text>
+            <text x="722" y="98" fill="#334155" font-size="11">• Confirm Password</text>
+            <text x="722" y="116" fill="#334155" font-size="11">• Password Manager Autofill</text>
+            <text x="722" y="132" fill="#10b981" font-size="11">• Final Account Initialization</text>
+
+            <defs>
+              <marker id="arrow-reg" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6"
+                orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#94a3b8" />
+              </marker>
+            </defs>
+          </svg>
+        </div>
+
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Registration Stage</th>
+                <th>Fields &amp; Inputs</th>
+                <th>Validation Rules &amp; Security Constraints</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>PAGE 1: Company Information</strong></td>
+                <td>
+                  • <strong>Company Name:</strong> Required string<br>
+                  • <strong>Company Description:</strong> Required text, approximately max 200 words<br>
+                  • <strong>Company Logo:</strong> Image upload (JPG/PNG format only)<br>
+                  • <strong>Company Type:</strong> Enterprise / Startup / Agency / Non-Profit<br>
+                  • <strong>Industry:</strong> Vertical taxonomy selection<br>
+                  • <strong>Country / Region:</strong> Geographical headquarters<br>
+                  • <strong>Global Option:</strong> Worldwide operating checkbox<br>
+                  • <strong>Company Email:</strong> Corporate domain email address
+                </td>
+                <td>
+                  • Mandatory uniqueness check on Company Name and Company Email.<br>
+                  • Word-count validator enforces maximum ~200 words on description.<br>
+                  • Image file-type validation restricts uploads strictly to JPG and PNG.
+                </td>
+              </tr>
+              <tr>
+                <td><strong>PAGE 2: Authentication</strong></td>
+                <td>
+                  • <strong>Email OTP:</strong> 6-digit numeric verification code<br>
+                  • <strong>Visual CAPTCHA:</strong> Anti-bot visual challenge<br>
+                  • <strong>OTP Verification Action:</strong> Validate one-time code<br>
+                  • <strong>CAPTCHA Verification Action:</strong> Validate solve response
+                </td>
+                <td>
+                  • <strong style="color:var(--danger);">Max 3 OTP attempts/resends</strong> within 24 hours per
+                  email.<br>
+                  • <strong style="color:var(--danger);">Max 3 CAPTCHA attempts</strong> within 24 hours before
+                  temporary cooldown.<br>
+                  • CAPTCHA refresh limitation prevents token farming.
+                </td>
+              </tr>
+              <tr>
+                <td><strong>PAGE 3: Company Configuration</strong></td>
+                <td>
+                  • <strong>Notification / Help Email:</strong> Team operational alerts<br>
+                  • <strong>Plugins / Social Integrations:</strong> External connectors<br>
+                  • <strong>Website API Authentication:</strong> Headless publishing credentials (WordPress Application
+                  Passwords)<br>
+                  • <strong>Policy &amp; Consent:</strong> Legal terms &amp; AI data usage policy
+                </td>
+                <td>
+                  • Strictly <strong style="color:var(--primary);">maximum 5 configured plugins/integrations</strong>
+                  per company.<br>
+                  • External website publishing credentials must be securely verified via test handshake.<br>
+                  • Publishing credentials are encrypted at rest and are never returned in API responses or exposed to
+                  users after storage.
+                </td>
+              </tr>
+              <tr>
+                <td><strong>PAGE 4: Password &amp; Initialization</strong></td>
+                <td>
+                  • <strong>Create Password:</strong> Master root credential<br>
+                  • <strong>Confirm Password:</strong> Matching validation<br>
+                  • <strong>Create Account Action:</strong> Final workspace provisioning<br>
+                  • <strong>Browser / Password Manager Save:</strong> Native autofill
+                </td>
+                <td>
+                  • Password complexity enforcement (min 12 chars, upper/lower/numeric/symbols).<br>
+                  • <em>"Save Password" refers exclusively to client-side browser/password-manager autofill and must
+                    NEVER mean plaintext password storage.</em>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card-grid">
+          <div class="card danger-border">
+            <h4>Rate Limiting &amp; Anti-Abuse Rules</h4>
+            <p>
+              To prevent brute-force attacks and abuse of external email gateways:
+            </p>
+            <ul>
+              <li><strong>OTP Enforcement:</strong> Strictly maximum 3 OTP requests/resends per corporate email within a
+                rolling 24-hour period.</li>
+              <li><strong>CAPTCHA Enforcement:</strong> Maximum 3 failed CAPTCHA submissions within 24 hours before a
+                temporary lock is engaged.</li>
+              <li><strong>Refresh Limitation:</strong> Rate-limited CAPTCHA challenge refreshes to prevent automated
+                token harvesting.</li>
+            </ul>
+          </div>
+          <div class="card primary-border">
+            <h4>Credential Storage Requirements</h4>
+            <p>
+              "Save Password" prompts presented at Page 4 refer exclusively to client-side browser/password-manager
+              integration.
+              The platform adheres to strict credential security standards: passwords are never stored in plaintext and
+              must be cryptographically hashed.
+              Publishing credentials (e.g. WordPress Application Passwords) are encrypted at rest, scoped to the
+              company's publishing integration, and never returned in API responses or exposed to users after storage.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 12 -->
+      <section id="sec-12">
+        <h2>
+          12. Access Request Workflows
+          <span class="tag-pill tag-decision">Approved Product Design</span>
+        </h2>
+        <p>
+          Secondary accounts (Reviewers and Editors) cannot directly register and immediately gain workspace access.
+          They must pass through a two-tiered identity and access approval gateway:
+        </p>
+
+        <div class="card-grid">
+          <div class="card">
+            <h4>Reviewer Onboarding Workflow</h4>
+            <div class="diagram-wrapper">
+              <span class="diagram-title">Visual 3: Reviewer Access Request Flow</span>
+              <svg viewBox="0 0 450 200" xmlns="http://www.w3.org/2000/svg">
+                <rect x="20" y="20" width="160" height="45" rx="6" fill="#f1f5f9" stroke="#94a3b8" />
+                <text x="100" y="47" font-size="11" text-anchor="middle" font-weight="bold">Input Name, Email, ID</text>
+
+                <line x1="180" y1="42" x2="220" y2="42" stroke="#64748b" stroke-width="2" />
+
+                <rect x="225" y="20" width="190" height="45" rx="6" fill="#e0f2fe" stroke="#0ea5e9" />
+                <text x="320" y="47" font-size="11" text-anchor="middle" fill="#0369a1" font-weight="bold">Request to
+                  Company Admin</text>
+
+                <line x1="320" y1="65" x2="320" y2="95" stroke="#64748b" stroke-width="2" />
+
+                <rect x="225" y="95" width="190" height="40" rx="6" fill="#fef3c7" stroke="#f59e0b" />
+                <text x="320" y="120" font-size="11" text-anchor="middle" fill="#92400e" font-weight="bold">Admin SLA:
+                  ~24 Hours</text>
+
+                <line x1="320" y1="135" x2="320" y2="155" stroke="#64748b" stroke-width="2" />
+
+                <rect x="180" y="155" width="280" height="40" rx="6" fill="#ecfdf5" stroke="#10b981" />
+                <text x="320" y="180" font-size="11" text-anchor="middle" fill="#065f46" font-weight="bold">Temp
+                  Password (42h Expiry) → 1st Login Reset</text>
+              </svg>
+            </div>
+            <p>
+              Reviewer submits identity information and corporate ID. The request routes to the Company Admin. If not
+              addressed within ~24 hours, the request expires, requiring a restart.
+              Upon acceptance, a temporary password is generated with a strict <strong>42-hour expiration
+                window</strong>, requiring an immediate permanent password change upon initial login.
+            </p>
+          </div>
+
+          <div class="card">
+            <h4>Editor Onboarding Workflow</h4>
+            <div class="diagram-wrapper">
+              <span class="diagram-title">Visual 4: Editor Access Request Flow</span>
+              <svg viewBox="0 0 450 200" xmlns="http://www.w3.org/2000/svg">
+                <rect x="20" y="20" width="160" height="45" rx="6" fill="#f1f5f9" stroke="#94a3b8" />
+                <text x="100" y="47" font-size="11" text-anchor="middle" font-weight="bold">Input Name, Email, ID</text>
+
+                <line x1="180" y1="42" x2="220" y2="42" stroke="#64748b" stroke-width="2" />
+
+                <rect x="225" y="20" width="190" height="45" rx="6" fill="#ede9fe" stroke="#8b5cf6" />
+                <text x="320" y="47" font-size="11" text-anchor="middle" fill="#5b21b6" font-weight="bold">Select
+                  Assigned Reviewer</text>
+
+                <line x1="320" y1="65" x2="320" y2="95" stroke="#64748b" stroke-width="2" />
+
+                <rect x="225" y="95" width="190" height="40" rx="6" fill="#fef3c7" stroke="#f59e0b" />
+                <text x="320" y="120" font-size="11" text-anchor="middle" fill="#92400e" font-weight="bold">Reviewer
+                  Decision Gate</text>
+
+                <line x1="320" y1="135" x2="320" y2="155" stroke="#64748b" stroke-width="2" />
+
+                <rect x="180" y="155" width="280" height="40" rx="6" fill="#ecfdf5" stroke="#10b981" />
+                <text x="320" y="180" font-size="11" text-anchor="middle" fill="#065f46" font-weight="bold">Temp
+                  Password (48h Expiry) → 1st Login Reset</text>
+              </svg>
+            </div>
+            <p>
+              Editor inputs corporate credentials, completes OTP/CAPTCHA, and selects their assigned Reviewer from the
+              company directory.
+              The Reviewer evaluates and accepts or rejects the candidate. Upon acceptance, a temporary password is
+              generated with a
+              <strong>48-hour expiration window</strong>, forcing an immediate credential change on first
+              authentication.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 13 -->
+      <section id="sec-13">
+        <h2>
+          13. Company AI Context
+          <span class="tag-pill tag-decision">Product Decision</span>
+        </h2>
+        <p>
+          The system shall maintain a tenant-isolated company context used to personalize topic suggestions and blog
+          generation.
+          All topic ideation, tone matching, and draft generation dynamically pull from this boundary:
+        </p>
+
+        <div class="card-grid">
+          <div class="card">
+            <h4>Core Brand Identity</h4>
+            <ul>
+              <li><strong>Company Details:</strong> Official brand name, size, operating regions.</li>
+              <li><strong>Industry & Vertical:</strong> Domain niche, terminology standards.</li>
+              <li><strong>Brand Voice:</strong> Authoritative, conversational, academic, or playful tone.</li>
+              <li><strong>Content Guidelines:</strong> Words to avoid, formatting dos and don'ts.</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h4>Market & Commercial Posture</h4>
+            <ul>
+              <li><strong>Products & Services:</strong> Feature sets, value propositions.</li>
+              <li><strong>Target Audience:</strong> B2B enterprise leaders, B2C buyers, technical personas.</li>
+              <li><strong>Marketing Goals:</strong> Lead generation, thought leadership, organic discovery.</li>
+              <li><strong>Promotion Rules:</strong> Call-to-action (CTA) templates, link insertion rules.</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h4>Organizational Knowledge</h4>
+            <ul>
+              <li><strong>Upcoming Projects:</strong> Launches, seasonal campaigns.</li>
+              <li><strong>Strategic Partners:</strong> Ecosystem alliances, approved co-marketing notes.</li>
+              <li><strong>Approved Knowledge:</strong> Whitepapers, fact-sheets, product catalogs.</li>
+              <li><strong>Content Memory:</strong> Rolling history of previously published topics.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="callout callout-danger">
+          <strong>Absolute Isolation Mandate:</strong> The AI context of Company A must never bleed into Company B.
+          Prompts, historical topics, reviewer comments, and uploaded documents are strictly partitioned by Company ID.
+        </div>
+      </section>
+
+      <!-- SECTION 14 -->
+      <section id="sec-14">
+        <h2>
+          14. Global Blog Format
+          <span class="tag-pill tag-decision">Approved Product Design</span>
+        </h2>
+        <p>
+          DailyBlog AI provides an enterprise baseline structure while enabling companies to standardize their long-term
+          publishing layout:
+        </p>
+
+        <div class="card-grid">
+          <div class="card primary-border">
+            <h4>Baseline Structural Blueprint <span class="tag-pill tag-assessment">Assessment Requirement</span></h4>
+            <ul>
+              <li><strong>Title:</strong> Compelling, brand-aligned H1 headline.</li>
+              <li><strong>Introduction:</strong> Hook, problem articulation, thesis statement.</li>
+              <li><strong>Structured Headings:</strong> H2 & H3 hierarchy organizing core arguments.</li>
+              <li><strong>Main Content:</strong> Educational body sections, bullet points, data callouts.</li>
+              <li><strong>Conclusion:</strong> Summary synthesis, closing thoughts, brand CTA.</li>
+            </ul>
+          </div>
+          <div class="card secondary-border">
+            <h4>SEO Optimization Standards <span class="tag-pill tag-assessment">Assessment Requirement</span></h4>
+            <ul>
+              <li><strong>SEO Page Title:</strong> Optimized title with primary keyword <span
+                  class="tag-pill tag-decision">Product Decision: 55–60 chars target</span>.</li>
+              <li><strong>Meta Description:</strong> Compelling search snippet <span
+                  class="tag-pill tag-decision">Product Decision: 140–160 chars target</span>.</li>
+              <li><strong>Keyword Integration:</strong> Primary and semantic LSI keywords distributed naturally.</li>
+              <li><strong>Search-Friendly Headings:</strong> Question-based and keyword-rich H2/H3 tags.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="callout callout-info">
+          <strong>AI-Assisted Format Definition:</strong> Editors can define the company's future Global Blog Format via
+          a guided AI dialogue.
+          The AI asks clarification questions regarding preferred section depths, CTA positions, and formatting rules.
+          Once confirmed, the AI outputs a formal versioned format specification.
+          <em>Crucial Product Rule: Defining or updating a Global Format does NOT trigger an immediate blog
+            generation.</em>
+        </div>
+      </section>
+
+      <!-- SECTION 15 -->
+      <section id="sec-15">
+        <h2>
+          15. Format Hierarchy
+          <span class="tag-pill tag-decision">Approved Product Design</span>
+        </h2>
+        <p>
+          To prevent one-off article modifications from corrupting the company's baseline templates, DailyBlog AI
+          enforces
+          a strict three-tiered <strong>Format Hierarchy</strong>:
+        </p>
+
+        <div class="diagram-wrapper">
+          <span class="diagram-title">Visual 5: 3-Tiered Format Inheritance Hierarchy</span>
+          <svg viewBox="0 0 600 230" xmlns="http://www.w3.org/2000/svg">
+            <!-- Level 1 -->
+            <polygon points="300,20 480,80 120,80" fill="#312e81" stroke="#4f46e5" stroke-width="2" />
+            <text x="300" y="58" fill="#ffffff" font-size="12" font-weight="bold" text-anchor="middle">LEVEL 1: SYSTEM
+              BASELINE</text>
+            <text x="300" y="74" fill="#c7d2fe" font-size="10" text-anchor="middle">Immutable Structural Minimums &amp;
+              SEO Standards</text>
+
+            <!-- Level 2 -->
+            <polygon points="120,85 480,85 530,150 70,150" fill="#1e293b" stroke="#0ea5e9" stroke-width="2" />
+            <text x="300" y="115" fill="#ffffff" font-size="13" font-weight="bold" text-anchor="middle">LEVEL 2: COMPANY
+              GLOBAL FORMAT</text>
+            <text x="300" y="133" fill="#94a3b8" font-size="10.5" text-anchor="middle">Versioned Company Template
+              (Affects Future Cycles)</text>
+
+            <!-- Level 3 -->
+            <polygon points="70,155 530,155 580,220 20,220" fill="#0f172a" stroke="#8b5cf6" stroke-width="2" />
+            <text x="300" y="185" fill="#ffffff" font-size="13" font-weight="bold" text-anchor="middle">LEVEL 3: CURRENT
+              BLOG OVERRIDE</text>
+            <text x="300" y="203" fill="#cbd5e1" font-size="10.5" text-anchor="middle">Isolated Edits to Today's Post
+              Only (Zero Global Mutation)</text>
+          </svg>
+        </div>
+
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Tier</th>
+                <th>Authority Scope</th>
+                <th>Mutability</th>
+                <th>Blast Radius</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>1. System Baseline</strong></td>
+                <td>Universal core: Title, Intro, Headings, Body, Conclusion, SEO metadata.</td>
+                <td>Immutable</td>
+                <td>Global across all platform tenants.</td>
+              </tr>
+              <tr>
+                <td><strong>2. Company Global Format</strong></td>
+                <td>Company-specific standard defined by Editor via AI conversation.</td>
+                <td>Versioned</td>
+                <td>Applies to all future daily blog generation cycles for the company.</td>
+              </tr>
+              <tr>
+                <td><strong>3. Current Blog Override</strong></td>
+                <td>In-situ edits, added sections, or custom styles applied during Edit Mode.</td>
+                <td>Ephemeral / Single-Post</td>
+                <td>Applies ONLY to the current post. Strictly prohibited from mutating Tier 2.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- SECTION 16 -->
+      <section id="sec-16">
+        <h2>
+          16. AI Topic Suggestion Journey
+          <span class="tag-pill tag-assessment">Assessment & Product Design</span>
+        </h2>
+        <p>
+          A core product principle of DailyBlog AI is that starting a daily cycle
+          <strong>does NOT immediately trigger complete article generation</strong>.
+          Instead, the process begins with an intelligent ideation gate:
+        </p>
+
+        <div class="card-grid">
+          <div class="card primary-border">
+            <h4>1. Context Synthesis</h4>
+            <p>The AI engine parses current company context, target audience, industry trends, marketing goals, and
+              recent post history to formulate relevant topic proposals (e.g. 3–5 recommendations) <span
+                class="tag-pill tag-decision">Product Decision</span>.</p>
+          </div>
+          <div class="card secondary-border">
+            <h4>2. Topic Presentation</h4>
+            <p>Proposals are presented to the Editor with compelling working titles, target keywords, audience alignment
+              rationales, and projected search intent.</p>
+          </div>
+          <div class="card success-border">
+            <h4>3. Editor Choice Gate</h4>
+            <p>The Editor holds total agency: they can either <strong>Select an AI Suggestion</strong> OR
+              <strong>Provide their Own Custom Topic</strong>. Blog generation begins only after explicit selection.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 17 -->
+      <section id="sec-17">
+        <h2>
+          17. Blog Generation Journey
+          <span class="tag-pill tag-assessment">Assessment Requirement</span>
+        </h2>
+        <p>
+          Once the topic is confirmed by the Editor, the system initiates the structured, multi-phase content synthesis
+          pipeline:
+        </p>
+
+        <div class="diagram-wrapper">
+          <span class="diagram-title">Visual 6: Multi-Stage Blog Generation Pipeline</span>
+          <svg viewBox="0 0 920 120" xmlns="http://www.w3.org/2000/svg">
+            <!-- Step 1 -->
+            <rect x="10" y="25" width="130" height="70" rx="8" fill="#eef2ff" stroke="#4f46e5" stroke-width="1.5" />
+            <text x="75" y="52" fill="#312e81" font-size="11" font-weight="bold" text-anchor="middle">1. Context
+              Load</text>
+            <text x="75" y="70" fill="#475569" font-size="9.5" text-anchor="middle">Company Context</text>
+
+            <line x1="140" y1="60" x2="165" y2="60" stroke="#94a3b8" stroke-width="2" marker-end="url(#gen-arr)" />
+
+            <!-- Step 2 -->
+            <rect x="165" y="25" width="130" height="70" rx="8" fill="#e0f2fe" stroke="#0ea5e9" stroke-width="1.5" />
+            <text x="230" y="52" fill="#0369a1" font-size="11" font-weight="bold" text-anchor="middle">2. Knowledge
+              RAG</text>
+            <text x="230" y="70" fill="#475569" font-size="9.5" text-anchor="middle">Docs &amp; Guidelines</text>
+
+            <line x1="295" y1="60" x2="320" y2="60" stroke="#94a3b8" stroke-width="2" marker-end="url(#gen-arr)" />
+
+            <!-- Step 3 -->
+            <rect x="320" y="25" width="130" height="70" rx="8" fill="#fdf4ff" stroke="#c084fc" stroke-width="1.5" />
+            <text x="385" y="52" fill="#7e22ce" font-size="11" font-weight="bold" text-anchor="middle">3. Blog
+              Planning</text>
+            <text x="385" y="70" fill="#475569" font-size="9.5" text-anchor="middle">Outline &amp; Headings</text>
+
+            <line x1="450" y1="60" x2="475" y2="60" stroke="#94a3b8" stroke-width="2" marker-end="url(#gen-arr)" />
+
+            <!-- Step 4 -->
+            <rect x="475" y="25" width="130" height="70" rx="8" fill="#fef3c7" stroke="#f59e0b" stroke-width="1.5" />
+            <text x="540" y="52" fill="#92400e" font-size="11" font-weight="bold" text-anchor="middle">4. Deep
+              Drafting</text>
+            <text x="540" y="70" fill="#475569" font-size="9.5" text-anchor="middle">Tone &amp; Brand Copy</text>
+
+            <line x1="605" y1="60" x2="630" y2="60" stroke="#94a3b8" stroke-width="2" marker-end="url(#gen-arr)" />
+
+            <!-- Step 5 -->
+            <rect x="630" y="25" width="130" height="70" rx="8" fill="#ecfdf5" stroke="#10b981" stroke-width="1.5" />
+            <text x="695" y="52" fill="#065f46" font-size="11" font-weight="bold" text-anchor="middle">5. SEO
+              Validation</text>
+            <text x="695" y="70" fill="#475569" font-size="9.5" text-anchor="middle">Meta &amp; Hierarchy</text>
+
+            <line x1="760" y1="60" x2="785" y2="60" stroke="#94a3b8" stroke-width="2" marker-end="url(#gen-arr)" />
+
+            <!-- Step 6 -->
+            <rect x="785" y="25" width="125" height="70" rx="8" fill="#312e81" stroke="#4f46e5" stroke-width="1.5" />
+            <text x="847" y="52" fill="#ffffff" font-size="11" font-weight="bold" text-anchor="middle">6. Draft
+              Ready</text>
+            <text x="847" y="70" fill="#c7d2fe" font-size="9.5" text-anchor="middle">15-Min Timer Starts</text>
+
+            <defs>
+              <marker id="gen-arr" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6"
+                orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#94a3b8" />
+              </marker>
+            </defs>
+          </svg>
+        </div>
+      </section>
+
+      <!-- SECTION 18 -->
+      <section id="sec-18">
+        <h2>
+          18. Editor-AI Journey
+          <span class="tag-pill tag-decision">Approved Product Design</span>
+        </h2>
+        <p>
+          The interaction between the Editor and the AI is structured as an ongoing, context-aware co-pilot
+          relationship.
+          Key operational rules govern this journey:
+        </p>
+        <ul>
+          <li><strong>Single Continuous Thread:</strong> All activities for today's post—topic selection, draft
+            generation, manual edits, AI instructions, and reviewer feedback loops—remain inside <em>Today's Chat</em>.
+            New, disconnected chat sessions are strictly prohibited for the same cycle.</li>
+          <li><strong>Multi-Modal Inputs:</strong> The Editor can instruct the AI via natural language chat prompts,
+            file uploads (PDF, DOCX, TXT reference materials), and voice-to-text audio input.</li>
+          <li><strong>Memory Retention:</strong> When asked to rewrite or expand a section, the AI retains the active
+            blog text, user-provided edits, uploaded files, and company brand rules in its active context.</li>
+        </ul>
+      </section>
+
+      <!-- SECTION 19 -->
+      <section id="sec-19">
+        <h2>
+          19. Editor 15-Minute Control Window
+          <span class="tag-pill tag-decision">Approved Product Design</span>
+        </h2>
+        <p>
+          Once the initial draft is generated, the system initiates a vital governance gate: the
+          <strong>15-Minute Editor Control Window</strong>. This guarantees that content is never blindly submitted
+          without human awareness:
+        </p>
+
+        <div class="diagram-wrapper">
+          <span class="diagram-title">Visual 7: 15-Minute Control Window Decision State Machine</span>
+          <svg viewBox="0 0 850 260" xmlns="http://www.w3.org/2000/svg">
+            <!-- Draft Ready Box -->
+            <rect x="30" y="90" width="180" height="70" rx="8" fill="#eef2ff" stroke="#4f46e5" stroke-width="2" />
+            <text x="120" y="120" font-size="12" font-weight="bold" fill="#312e81" text-anchor="middle">Draft
+              Available</text>
+            <text x="120" y="140" font-size="11" fill="#4f46e5" text-anchor="middle">⏱ 15:00 Timer Starts</text>
+
+            <!-- Branch 1: Manual Submit -->
+            <line x1="210" y1="105" x2="310" y2="45" stroke="#10b981" stroke-width="2" marker-end="url(#ctrl-arr)" />
+            <rect x="310" y="15" width="220" height="60" rx="8" fill="#ecfdf5" stroke="#10b981" />
+            <text x="420" y="40" font-size="12" font-weight="bold" fill="#065f46" text-anchor="middle">Option A: "Send
+              to Reviewer"</text>
+            <text x="420" y="58" font-size="10" fill="#047857" text-anchor="middle">Immediate handoff, stops
+              timer</text>
+
+            <!-- Branch 2: Open Edit Mode -->
+            <line x1="210" y1="125" x2="310" y2="125" stroke="#8b5cf6" stroke-width="2" marker-end="url(#ctrl-arr)" />
+            <rect x="310" y="95" width="220" height="60" rx="8" fill="#f5f3ff" stroke="#8b5cf6" />
+            <text x="420" y="120" font-size="12" font-weight="bold" fill="#5b21b6" text-anchor="middle">Option B: "Open
+              Edit Mode"</text>
+            <text x="420" y="138" font-size="10" fill="#6d28d9" text-anchor="middle">Locks out auto-submission</text>
+
+            <!-- Branch 3: Timer Inactivity Expiry -->
+            <line x1="210" y1="145" x2="310" y2="205" stroke="#f59e0b" stroke-width="2" stroke-dasharray="4"
+              marker-end="url(#ctrl-arr)" />
+            <rect x="310" y="175" width="220" height="60" rx="8" fill="#fffbeb" stroke="#f59e0b" />
+            <text x="420" y="200" font-size="12" font-weight="bold" fill="#92400e" text-anchor="middle">Option C:
+              Inactivity Timeout</text>
+            <text x="420" y="218" font-size="10" fill="#b45309" text-anchor="middle">15 min elapse with zero
+              action</text>
+
+            <!-- Outcome Connections -->
+            <line x1="530" y1="45" x2="620" y2="105" stroke="#10b981" stroke-width="2" />
+            <line x1="530" y1="205" x2="620" y2="145" stroke="#f59e0b" stroke-width="2" />
+
+            <!-- Target Box -->
+            <rect x="620" y="95" width="200" height="60" rx="8" fill="#1e293b" stroke="#0ea5e9" stroke-width="2" />
+            <text x="720" y="120" font-size="12" font-weight="bold" fill="#ffffff" text-anchor="middle">Reviewer Active
+              Queue</text>
+            <text x="720" y="138" font-size="10" fill="#94a3b8" text-anchor="middle">Draft queued for evaluation</text>
+
+            <defs>
+              <marker id="ctrl-arr" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6"
+                orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#64748b" />
+              </marker>
+            </defs>
+          </svg>
+        </div>
+
+        <div class="callout callout-warning">
+          <strong>Critical Non-Forcible Handoff Rule:</strong> If the Editor enters <em>Edit Mode</em> at minute 14:59,
+          the automatic handoff is indefinitely suspended. The system must <strong>never forcibly submit</strong>
+          a blog while an Editor is actively editing. The Editor retains sole control until they explicitly click
+          "Submit to Reviewer".
+        </div>
+      </section>
+
+      <!-- SECTION 20 -->
+      <section id="sec-20">
+        <h2>
+          20. Edit Mode Deep Dive
+          <span class="tag-pill tag-decision">Approved Product Design</span>
+        </h2>
+        <p>
+          Edit Mode provides a comprehensive editorial canvas pairing manual control with contextual AI assistance:
+        </p>
+
+        <div class="card-grid">
+          <div class="card">
+            <h4>Direct Text & Structure Manipulation</h4>
+            <ul>
+              <li>Add, delete, and rewrite text inline within paragraphs.</li>
+              <li>Reorder, promote, or demote headings (H2 to H3).</li>
+              <li>Add unique company quotes, expert commentary, or brand lines.</li>
+              <li>Fine-tune paragraph lengths and readability formatting.</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h4>Conversational AI Co-Pilot</h4>
+            <ul>
+              <li>Instruct the AI: <em>"Make Section 2 more technical"</em> or <em>"Add 2 bullet points on ROI"</em>.
+              </li>
+              <li>Request alternative introductions or conclusion hooks.</li>
+              <li>Current-blog format overrides are strictly isolated to this post.</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h4>Multi-Modal Reference Ingestion</h4>
+            <ul>
+              <li>Upload PDF / DOCX research papers for factual ground-truth.</li>
+              <li>Voice-to-text dictation for rapid thought capture.</li>
+              <li>System verifies that AI revisions respect company brand guidelines and previous reviewer comments.
+              </li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 21 -->
+      <section id="sec-21">
+        <h2>
+          21. Reviewer Notification Model
+          <span class="tag-pill tag-decision">Approved Product Design</span>
+        </h2>
+        <p>
+          The Reviewer does not view a generic event log. The Reviewer dashboard features an
+          <strong>Active Action Queue</strong> where each notification represents an individual, actionable blog review
+          item:
+        </p>
+
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Entity Attribute</th>
+                <th>Description & Lifecycle Impact</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Blog ID & Title</strong></td>
+                <td>Direct link to the generated draft and article preview.</td>
+              </tr>
+              <tr>
+                <td><strong>Submitting Editor</strong></td>
+                <td>Name and profile of the Editor responsible for the draft.</td>
+              </tr>
+              <tr>
+                <td><strong>Submission Timestamp</strong></td>
+                <td>Precise time the blog exited the Editor 15-min window or was manually submitted.</td>
+              </tr>
+              <tr>
+                <td><strong>Target Scheduled Time</strong></td>
+                <td>The predetermined daily publishing slot (e.g. 4:00 PM).</td>
+              </tr>
+              <tr>
+                <td><strong>Current Review Status</strong></td>
+                <td>Pending Review, In Review, Under Revision, Rescheduled.</td>
+              </tr>
+              <tr>
+                <td><strong>Closure Conditions</strong></td>
+                <td>
+                  An active notification card is automatically cleared from the active queue ONLY when:
+                  <br>• The Reviewer clicks <strong>Approve</strong>.
+                  <br>• The Reviewer clicks <strong>Reject</strong>.
+                  <br>• The Reviewer issues <strong>Need Improvement</strong>.
+                  <br>• The Reviewer successfully <strong>Reschedules</strong>.
+                  <br>• The scheduled publishing time passes (item moves to expired/unresolved status).
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- SECTION 22 -->
+      <section id="sec-22">
+        <h2>
+          22. Reviewer Decision Timeline
+          <span class="tag-pill tag-decision">Approved Product Design</span>
+        </h2>
+        <p>
+          To prevent publishing errors, pipeline collisions, and race conditions, the platform enforces strict,
+          time-gated decision windows relative to the scheduled publishing time.
+        </p>
+
+        <div class="diagram-wrapper">
+          <span class="diagram-title">Visual 8: Reviewer Decision Timeline & Permitted Actions (Example: 4:00 PM
+            Scheduled Time)</span>
+          <svg viewBox="0 0 950 200" xmlns="http://www.w3.org/2000/svg">
+            <!-- Timeline Axis -->
+            <line x1="50" y1="90" x2="900" y2="90" stroke="#cbd5e1" stroke-width="4" />
+
+            <!-- Window 1: Before 3:40 PM -->
+            <rect x="50" y="20" width="300" height="55" rx="6" fill="#ecfdf5" stroke="#10b981" stroke-width="1.5" />
+            <text x="200" y="43" fill="#065f46" font-size="11" font-weight="bold" text-anchor="middle">BEFORE 3:40 PM
+              (&gt; 20m remaining)</text>
+            <text x="200" y="60" fill="#047857" font-size="10" text-anchor="middle">✓ Approve &nbsp;&nbsp; ✓ Need
+              Improvement</text>
+            <circle cx="50" cy="90" r="7" fill="#10b981" />
+            <circle cx="350" cy="90" r="7" fill="#10b981" />
+            <text x="350" y="115" font-size="10" fill="#64748b" text-anchor="middle">3:40 PM</text>
+
+            <!-- Window 2: 3:40 - 3:50 PM -->
+            <rect x="355" y="20" width="200" height="55" rx="6" fill="#eff6ff" stroke="#3b82f6" stroke-width="1.5" />
+            <text x="455" y="43" fill="#1d4ed8" font-size="11" font-weight="bold" text-anchor="middle">3:40 PM – 3:50
+              PM</text>
+            <text x="455" y="60" fill="#1e40af" font-size="10" text-anchor="middle">✓ Approve &nbsp; ✓ Reject &nbsp; ✓
+              Reschedule</text>
+            <circle cx="555" cy="90" r="7" fill="#3b82f6" />
+            <text x="555" y="115" font-size="10" fill="#64748b" text-anchor="middle">3:50 PM</text>
+
+            <!-- Window 3: 3:50 - 3:55 PM -->
+            <rect x="560" y="20" width="150" height="55" rx="6" fill="#fffbeb" stroke="#f59e0b" stroke-width="1.5" />
+            <text x="635" y="43" fill="#92400e" font-size="11" font-weight="bold" text-anchor="middle">3:50 PM – 3:55
+              PM</text>
+            <text x="635" y="60" fill="#b45309" font-size="10" text-anchor="middle">✓ Approve &nbsp;&nbsp; ✓
+              Reject</text>
+            <circle cx="710" cy="90" r="7" fill="#f59e0b" />
+            <text x="710" y="115" font-size="10" fill="#64748b" text-anchor="middle">3:55 PM</text>
+
+            <!-- Window 4: 3:55 - 4:00 PM -->
+            <rect x="715" y="20" width="115" height="55" rx="6" fill="#fef2f2" stroke="#ef4444" stroke-width="1.5" />
+            <text x="772" y="43" fill="#991b1b" font-size="10" font-weight="bold" text-anchor="middle">3:55 – 4:00
+              PM</text>
+            <text x="772" y="60" fill="#b91c1c" font-size="9.5" text-anchor="middle">✓ Emergency Reject</text>
+            <circle cx="830" cy="90" r="7" fill="#ef4444" />
+            <text x="830" y="115" font-size="10" fill="#64748b" text-anchor="middle">4:00 PM</text>
+
+            <!-- Window 5: At 4:00 PM -->
+            <rect x="835" y="20" width="110" height="55" rx="6" fill="#0f172a" stroke="#000" />
+            <text x="890" y="43" fill="#ffffff" font-size="10" font-weight="bold" text-anchor="middle">4:00 PM
+              (LOCK)</text>
+            <text x="890" y="60" fill="#94a3b8" font-size="9" text-anchor="middle">Zero Actions</text>
+          </svg>
+        </div>
+
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Time Window (4:00 PM Target)</th>
+                <th>Permitted Actions</th>
+                <th>System Rationale & Tooltip Guidance</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Before 3:40 PM</strong> (&gt; 20m before)</td>
+                <td><span class="tag-pill tag-assessment">Approve</span> <span class="tag-pill tag-assessment">Need
+                    Improvement</span></td>
+                <td>Adequate time exists for the Editor to receive feedback and revise the draft. "Reject" is disabled
+                  to encourage collaborative editorial improvement.</td>
+              </tr>
+              <tr>
+                <td><strong>3:40 PM – 3:50 PM</strong> (20m to 10m before)</td>
+                <td><span class="tag-pill tag-assessment">Approve</span> <span
+                    class="tag-pill tag-assessment">Reject</span> <span
+                    class="tag-pill tag-assessment">Reschedule</span></td>
+                <td>Insufficient time remains for an editing cycle. Reviewer must approve as-is, reject to prevent bad
+                  publication, or reschedule to grant revision time (permitted while next slot is &ge; 1h away).</td>
+              </tr>
+              <tr>
+                <td><strong>3:50 PM – 3:55 PM</strong> (10m to 5m before)</td>
+                <td><span class="tag-pill tag-assessment">Approve</span> <span
+                    class="tag-pill tag-assessment">Reject</span></td>
+                <td>Critical cutoff. Rescheduling is disabled to prevent calendar collision with upcoming daily runs.
+                  Final clearance or veto only.</td>
+              </tr>
+              <tr>
+                <td><strong>3:55 PM – 4:00 PM</strong> (5m to 0m before)</td>
+                <td><span class="tag-pill tag-assessment">Emergency Reject Only</span></td>
+                <td>Draft packaging commences. Approval is locked to prevent partial payloads. Only emergency veto
+                  (Reject) is permitted.</td>
+              </tr>
+              <tr>
+                <td><strong>4:00 PM (Target Publish Time)</strong></td>
+                <td><em>None (Locked)</em></td>
+                <td>Automated publishing pipeline executes. All manual UI controls are locked.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- SECTION 23 -->
+      <section id="sec-23">
+        <h2>
+          23. Need Improvement Workflow
+          <span class="tag-pill tag-decision">Approved Product Design</span>
+        </h2>
+        <p>
+          The "Need Improvement" action establishes a collaborative revision loop without requiring the Reviewer to
+          rewrite the article:
+        </p>
+
+        <div class="diagram-wrapper">
+          <span class="diagram-title">Visual 9: Need Improvement In-Thread Feedback Loop</span>
+          <svg viewBox="0 0 850 180" xmlns="http://www.w3.org/2000/svg">
+            <!-- Step 1 -->
+            <rect x="20" y="30" width="180" height="80" rx="8" fill="#eff6ff" stroke="#3b82f6" stroke-width="1.5" />
+            <text x="110" y="55" font-size="11" font-weight="bold" fill="#1e40af" text-anchor="middle">1. Reviewer
+              Feedback</text>
+            <text x="110" y="75" font-size="10" fill="#475569" text-anchor="middle">• Section Comments</text>
+            <text x="110" y="92" font-size="10" fill="#475569" text-anchor="middle">• Voice Notes / Text</text>
+
+            <line x1="200" y1="70" x2="240" y2="70" stroke="#64748b" stroke-width="2" marker-end="url(#rev-arr)" />
+
+            <!-- Step 2 -->
+            <rect x="240" y="30" width="160" height="80" rx="8" fill="#fef3c7" stroke="#f59e0b" stroke-width="1.5" />
+            <text x="320" y="55" font-size="11" font-weight="bold" fill="#92400e" text-anchor="middle">2. Save &amp;
+              Dispatch</text>
+            <text x="320" y="75" font-size="10" fill="#475569" text-anchor="middle">Feedback bundled</text>
+            <text x="320" y="92" font-size="10" fill="#475569" text-anchor="middle">Dispatched to Editor</text>
+
+            <line x1="400" y1="70" x2="440" y2="70" stroke="#64748b" stroke-width="2" marker-end="url(#rev-arr)" />
+
+            <!-- Step 3 -->
+            <rect x="440" y="30" width="190" height="80" rx="8" fill="#ede9fe" stroke="#8b5cf6" stroke-width="1.5" />
+            <text x="535" y="55" font-size="11" font-weight="bold" fill="#5b21b6" text-anchor="middle">3. Active Thread
+              Injection</text>
+            <text x="535" y="75" font-size="10" fill="#475569" text-anchor="middle">Injects into EXISTING</text>
+            <text x="535" y="92" font-size="10" fill="#475569" text-anchor="middle">Editor ↔ AI Conversation</text>
+
+            <line x1="630" y1="70" x2="670" y2="70" stroke="#64748b" stroke-width="2" marker-end="url(#rev-arr)" />
+
+            <!-- Step 4 -->
+            <rect x="670" y="30" width="160" height="80" rx="8" fill="#ecfdf5" stroke="#10b981" stroke-width="1.5" />
+            <text x="750" y="55" font-size="11" font-weight="bold" fill="#065f46" text-anchor="middle">4. AI
+              Co-Revision</text>
+            <text x="750" y="75" font-size="10" fill="#475569" text-anchor="middle">Editor + AI resolve</text>
+            <text x="750" y="92" font-size="10" fill="#475569" text-anchor="middle">Re-submit to Reviewer</text>
+
+            <defs>
+              <marker id="rev-arr" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6"
+                orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#64748b" />
+              </marker>
+            </defs>
+          </svg>
+        </div>
+
+        <div class="callout callout-info">
+          <strong>Thread Continuity Rule:</strong> Reviewer feedback must appear inside the <strong>existing Editor ↔ AI
+            conversation</strong>.
+          The system must not generate an isolated, out-of-context chat. Reviewer feedback is injected into the existing
+          Editor-AI conversation. The Editor can then ask the AI to help interpret, revise, or address the feedback,
+          retaining human editorial control before resubmitting.
+        </div>
+      </section>
+
+      <!-- SECTION 24 -->
+      <section id="sec-24">
+        <h2>
+          24. Rescheduling Workflow
+          <span class="tag-pill tag-decision">Approved Product Design</span>
+        </h2>
+        <p>
+          Reschedule becomes available during the applicable 20–10 minute review window before the current scheduled
+          publishing time. A reschedule operation remains permitted only while the next applicable scheduled publishing
+          slot is at least one hour away.
+        </p>
+        <ul>
+          <li><strong>Review Window vs. Next-Slot Cutoff:</strong> The 20–10 minute window (e.g. 3:40 PM – 3:50 PM for a
+            4:00 PM post) designates when the Reviewer can trigger the reschedule action. Separately, the rescheduled
+            target time is constrained by the next scheduled publishing slot: a reschedule operation remains permitted
+            only while the next applicable scheduled publishing slot is at least one hour away (e.g. if the regular next
+            publishing slot is Tuesday 4:00 PM, the current blog may be rescheduled only until Tuesday 3:00 PM).</li>
+          <li><strong>Cycle Continuity:</strong> Rescheduling keeps the same Editor-AI conversation thread and keeps the
+            current blog active, changing only its publishing dispatch time without starting a new blog cycle.</li>
+          <li><strong>Cycle Exclusivity:</strong> The system maintains strictly ONE active blog cycle per company. A
+            rescheduled blog remains the active cycle until it is successfully published or enters an explicit
+            publishing-failure state requiring recovery; a new daily cycle cannot start concurrently.</li>
+          <li><strong>External Dispatch Failure:</strong> If a rescheduled publication attempt fails due to an external
+            CMS outage, the failure is communicated to the Editor and Company Admin, and the current cycle remains
+            unresolved until addressed.</li>
+        </ul>
+      </section>
+
+      <!-- SECTION 25 -->
+      <section id="sec-25">
+        <h2>
+          25. Publishing Schedule
+          <span class="tag-pill tag-assessment">Assessment & Product Design</span>
+        </h2>
+        <p>
+          The Weekly Publishing Schedule controls the automated cadence of the company's digital presence:
+        </p>
+
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Schedule Parameter</th>
+                <th>Configuration Rules & Behavior</th>
+                <th>Role Permissions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Active Days</strong></td>
+                <td>Monday through Sunday (individual day toggle: ON / OFF).</td>
+                <td>Reviewer (Edit) • Admin / Editor (View Only)</td>
+              </tr>
+              <tr>
+                <td><strong>Daily Target Time</strong></td>
+                <td>24-Hour time picker (e.g. 16:00:00). Designates deadline and publish dispatch.</td>
+                <td>Reviewer (Edit) • Admin / Editor (View Only)</td>
+              </tr>
+              <tr>
+                <td><strong>Ad-Hoc Reschedule</strong></td>
+                <td>Per-post time override available during the applicable 20–10 minute review window before the current
+                  scheduled publishing time; permitted only while the next applicable scheduled publishing slot is at
+                  least one hour away.</td>
+                <td>Reviewer (Edit) • Admin / Editor (View Only)</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- SECTION 26 -->
+      <section id="sec-26">
+        <h2>
+          26. WordPress Publishing Journey
+          <span class="tag-pill tag-assessment">Assessment & Product Design</span>
+        </h2>
+        <p>
+          Initial publishing integration: WordPress REST API using WordPress Application Passwords. The publishing layer
+          is designed so additional providers/authentication mechanisms can be added later.
+        </p>
+
+        <div class="diagram-wrapper">
+          <span class="diagram-title">Visual 10: WordPress Headless Publishing Pipeline</span>
+          <svg viewBox="0 0 920 130" xmlns="http://www.w3.org/2000/svg">
+            <!-- Stage 1 -->
+            <rect x="20" y="25" width="160" height="75" rx="8" fill="#eef2ff" stroke="#4f46e5" stroke-width="1.5" />
+            <text x="100" y="52" fill="#312e81" font-size="11" font-weight="bold" text-anchor="middle">1. Approved
+              State</text>
+            <text x="100" y="70" fill="#475569" font-size="9.5" text-anchor="middle">Reviewer Cleared</text>
+
+            <line x1="180" y1="62" x2="215" y2="62" stroke="#94a3b8" stroke-width="2" marker-end="url(#wp-arr)" />
+
+            <!-- Stage 2 -->
+            <rect x="215" y="25" width="160" height="75" rx="8" fill="#e0f2fe" stroke="#0ea5e9" stroke-width="1.5" />
+            <text x="295" y="52" fill="#0369a1" font-size="11" font-weight="bold" text-anchor="middle">2. Payload
+              Packaging</text>
+            <text x="295" y="70" fill="#475569" font-size="9.5" text-anchor="middle">HTML + SEO + Meta</text>
+
+            <line x1="375" y1="62" x2="410" y2="62" stroke="#94a3b8" stroke-width="2" marker-end="url(#wp-arr)" />
+
+            <!-- Stage 3 -->
+            <rect x="410" y="25" width="170" height="75" rx="8" fill="#fdf4ff" stroke="#c084fc" stroke-width="1.5" />
+            <text x="495" y="52" fill="#7e22ce" font-size="11" font-weight="bold" text-anchor="middle">3. Auth
+              Handshake</text>
+            <text x="495" y="70" fill="#475569" font-size="9.5" text-anchor="middle">Application Password</text>
+
+            <line x1="580" y1="62" x2="615" y2="62" stroke="#94a3b8" stroke-width="2" marker-end="url(#wp-arr)" />
+
+            <!-- Stage 4 -->
+            <rect x="615" y="25" width="140" height="75" rx="8" fill="#ecfdf5" stroke="#10b981" stroke-width="1.5" />
+            <text x="685" y="52" fill="#065f46" font-size="11" font-weight="bold" text-anchor="middle">4. REST
+              Dispatch</text>
+            <text x="685" y="70" fill="#475569" font-size="9.5" text-anchor="middle">HTTP POST /posts</text>
+
+            <line x1="755" y1="62" x2="790" y2="62" stroke="#94a3b8" stroke-width="2" marker-end="url(#wp-arr)" />
+
+            <!-- Stage 5 -->
+            <rect x="790" y="25" width="115" height="75" rx="8" fill="#10b981" stroke="#059669" stroke-width="1.5" />
+            <text x="847" y="52" fill="#ffffff" font-size="11" font-weight="bold" text-anchor="middle">5. Verified
+              Pub</text>
+            <text x="847" y="70" fill="#ecfdf5" font-size="9.5" text-anchor="middle">Cycle Complete</text>
+
+            <defs>
+              <marker id="wp-arr" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6"
+                orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#94a3b8" />
+              </marker>
+            </defs>
+          </svg>
+        </div>
+
+        <div class="callout callout-danger">
+          <strong>Strict Failure Handling:</strong> A failed external HTTP request to WordPress (e.g. 401 Unauthorized,
+          500 Internal Server Error, timeout)
+          must <strong>NEVER be marked as successful</strong>. The post status transitions to
+          <code>Publish_Failed</code>, alert notifications are dispatched to both Editor and Company Admin,
+          and the blog cycle remains open for retry.
+        </div>
+      </section>
+
+      <!-- SECTION 27 -->
+      <section id="sec-27">
+        <h2>
+          27. Notification Model
+          <span class="tag-pill tag-decision">Approved Product Design</span>
+        </h2>
+        <p>
+          The product strictly bifurcates notifications between Reviewers and Editors based on operational need:
+        </p>
+
+        <div class="card-grid">
+          <div class="card warning-border">
+            <h4>Reviewer: Action-Item Queue</h4>
+            <ul>
+              <li>Transient, task-oriented action cards.</li>
+              <li>Represents pending drafts requiring immediate decision.</li>
+              <li>Displays countdown timers to target publish deadlines.</li>
+              <li>Dismissed only upon concrete decision or time expiration.</li>
+            </ul>
+          </div>
+          <div class="card secondary-border">
+            <h4>Editor: Informational Activity Feed</h4>
+            <ul>
+              <li>Persistent chronological event log.</li>
+              <li>Notifies Editor of: Approvals, Rejections, Need Improvement notes.</li>
+              <li>Informs of plugin status changes or administrative updates.</li>
+              <li>Serves as an ongoing project timeline.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 28 -->
+      <section id="sec-28">
+        <h2>
+          28. Complete End-to-End Product Journey
+          <span class="tag-pill tag-assessment">Master End-to-End Product Workflow</span>
+        </h2>
+        <p>
+          The following master swimlane illustrates the unified workflow orchestrating all three user roles, the
+          conversational AI co-pilot, and the headless WordPress publishing engine:
+        </p>
+
+        <div class="diagram-wrapper">
+          <span class="diagram-title">Visual 11: Master End-to-End User Journey Swimlane</span>
+          <svg viewBox="0 0 980 440" xmlns="http://www.w3.org/2000/svg">
+            <!-- Swimlane Backgrounds -->
+            <rect x="10" y="10" width="960" height="75" rx="6" fill="#f8fafc" stroke="#e2e8f0" />
+            <text x="25" y="45" font-size="11" font-weight="bold" fill="#312e81">Company Admin</text>
+
+            <rect x="10" y="90" width="960" height="75" rx="6" fill="#f1f5f9" stroke="#e2e8f0" />
+            <text x="25" y="125" font-size="11" font-weight="bold" fill="#0369a1">Reviewer</text>
+
+            <rect x="10" y="170" width="960" height="85" rx="6" fill="#f8fafc" stroke="#e2e8f0" />
+            <text x="25" y="210" font-size="11" font-weight="bold" fill="#5b21b6">Editor</text>
+
+            <rect x="10" y="260" width="960" height="85" rx="6" fill="#f1f5f9" stroke="#e2e8f0" />
+            <text x="25" y="300" font-size="11" font-weight="bold" fill="#d97706">AI Co-Pilot</text>
+
+            <rect x="10" y="350" width="960" height="80" rx="6" fill="#f8fafc" stroke="#e2e8f0" />
+            <text x="25" y="390" font-size="11" font-weight="bold" fill="#047857">WordPress Gateway</text>
+
+            <!-- Step 1: Admin Registration -->
+            <rect x="120" y="25" width="100" height="45" rx="6" fill="#312e81" />
+            <text x="170" y="45" fill="#fff" font-size="10" text-anchor="middle" font-weight="bold">4-Page Org
+              Reg</text>
+            <text x="170" y="58" fill="#c7d2fe" font-size="8.5" text-anchor="middle">Auth &amp; WP Keys</text>
+
+            <!-- Flow to Reviewer Approval -->
+            <line x1="220" y1="47" x2="250" y2="47" stroke="#64748b" stroke-width="1.5" />
+            <rect x="250" y="25" width="100" height="45" rx="6" fill="#4338ca" />
+            <text x="300" y="45" fill="#fff" font-size="10" text-anchor="middle" font-weight="bold">Approve
+              Reviewer</text>
+            <text x="300" y="58" fill="#c7d2fe" font-size="8.5" text-anchor="middle">24h SLA Window</text>
+
+            <!-- Down to Reviewer -->
+            <line x1="300" y1="70" x2="300" y2="105" stroke="#64748b" stroke-width="1.5" marker-end="url(#swim-arr)" />
+            <rect x="250" y="105" width="100" height="45" rx="6" fill="#0284c7" />
+            <text x="300" y="125" fill="#fff" font-size="10" text-anchor="middle" font-weight="bold">Set Schedule</text>
+            <text x="300" y="138" fill="#e0f2fe" font-size="8.5" text-anchor="middle">Approve Editor</text>
+
+            <!-- Down to Editor -->
+            <line x1="300" y1="150" x2="300" y2="185" stroke="#64748b" stroke-width="1.5" marker-end="url(#swim-arr)" />
+            <rect x="250" y="185" width="100" height="55" rx="6" fill="#7c3aed" />
+            <text x="300" y="205" fill="#fff" font-size="10" text-anchor="middle" font-weight="bold">Topic Gate</text>
+            <text x="300" y="220" fill="#ede9fe" font-size="8.5" text-anchor="middle">Select or Provide</text>
+
+            <!-- To AI -->
+            <line x1="350" y1="212" x2="380" y2="280" stroke="#64748b" stroke-width="1.5" marker-end="url(#swim-arr)" />
+            <rect x="380" y="275" width="110" height="55" rx="6" fill="#d97706" />
+            <text x="435" y="295" fill="#fff" font-size="10" text-anchor="middle" font-weight="bold">RAG &amp;
+              Drafting</text>
+            <text x="435" y="310" fill="#fef3c7" font-size="8.5" text-anchor="middle">SEO &amp; Format Check</text>
+
+            <!-- Back to Editor (15m window) -->
+            <line x1="490" y1="302" x2="520" y2="212" stroke="#64748b" stroke-width="1.5" marker-end="url(#swim-arr)" />
+            <rect x="520" y="185" width="110" height="55" rx="6" fill="#6d28d9" />
+            <text x="575" y="205" fill="#fff" font-size="10" text-anchor="middle" font-weight="bold">15-Min
+              Control</text>
+            <text x="575" y="220" fill="#ede9fe" font-size="8.5" text-anchor="middle">Edit Mode or Send</text>
+
+            <!-- Up to Reviewer Decision -->
+            <line x1="575" y1="185" x2="575" y2="150" stroke="#64748b" stroke-width="1.5" marker-end="url(#swim-arr)" />
+            <rect x="520" y="105" width="110" height="45" rx="6" fill="#0369a1" />
+            <text x="575" y="125" fill="#fff" font-size="10" text-anchor="middle" font-weight="bold">Review Gates</text>
+            <text x="575" y="138" fill="#e0f2fe" font-size="8.5" text-anchor="middle">Approve / Reschedule</text>
+
+            <!-- Forward to WordPress Gateway -->
+            <line x1="630" y1="127" x2="700" y2="380" stroke="#10b981" stroke-width="2" marker-end="url(#swim-arr)" />
+            <rect x="700" y="365" width="120" height="50" rx="6" fill="#059669" />
+            <text x="760" y="385" fill="#fff" font-size="10" text-anchor="middle" font-weight="bold">WP REST
+              Dispatch</text>
+            <text x="760" y="400" fill="#ecfdf5" font-size="8.5" text-anchor="middle">Verify HTTP 201</text>
+
+            <!-- Loop Back for Next Daily Cycle -->
+            <line x1="820" y1="390" x2="890" y2="390" stroke="#059669" stroke-width="2" />
+            <line x1="890" y1="390" x2="890" y2="212" stroke="#059669" stroke-width="2" />
+            <line x1="890" y1="212" x2="350" y2="212" stroke="#059669" stroke-width="2" stroke-dasharray="4"
+              marker-end="url(#swim-arr)" />
+            <text x="620" y="240" fill="#059669" font-size="9" font-weight="bold">Trigger Next Daily Cycle</text>
+
+            <defs>
+              <marker id="swim-arr" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6"
+                orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#64748b" />
+              </marker>
+            </defs>
+          </svg>
+        </div>
+      </section>
+
+      <!-- SECTION 29 -->
+      <section id="sec-29">
+        <h2>
+          29. Functional Requirements (FR)
+          <span class="tag-pill tag-assessment">Product Requirements Summary</span>
+        </h2>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Req ID</th>
+                <th>Requirement Title</th>
+                <th>Functional Description & Validation Rule</th>
+                <th>Classification</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>FR-01</strong></td>
+                <td>Multi-Stage Admin Registration</td>
+                <td>System shall guide Company Admin through 4 registration pages: Org Info, OTP/CAPTCHA, Config, and
+                  Password.</td>
+                <td><span class="tag-pill tag-decision">Product Decision</span></td>
+              </tr>
+              <tr>
+                <td><strong>FR-02</strong></td>
+                <td>Anti-Abuse Verification Limits</td>
+                <td>System shall restrict email OTP attempts to max 3 and CAPTCHA attempts to max 3 per 24-hour window.
+                </td>
+                <td><span class="tag-pill tag-decision">Product Decision</span></td>
+              </tr>
+              <tr>
+                <td><strong>FR-03</strong></td>
+                <td>Reviewer Access Approval SLA</td>
+                <td>System shall route Reviewer requests to Admin with a 24-hour auto-expiration window.</td>
+                <td><span class="tag-pill tag-decision">Product Decision</span></td>
+              </tr>
+              <tr>
+                <td><strong>FR-04</strong></td>
+                <td>Temporary Credential Lifecycle</td>
+                <td>Reviewer temporary passwords shall expire after 42 hours; Editor temporary passwords after 48 hours.
+                </td>
+                <td><span class="tag-pill tag-decision">Product Decision</span></td>
+              </tr>
+              <tr>
+                <td><strong>FR-05</strong></td>
+                <td>First-Login Password Reset</td>
+                <td>Users logging in with temporary credentials must be forced to set a permanent password before
+                  dashboard access.</td>
+                <td><span class="tag-pill tag-decision">Product Decision</span></td>
+              </tr>
+              <tr>
+                <td><strong>FR-06</strong></td>
+                <td>Company AI Context</td>
+                <td>The system shall maintain a tenant-isolated company context used to personalize topic suggestions
+                  and blog generation.</td>
+                <td><span class="tag-pill tag-decision">Product Decision</span></td>
+              </tr>
+              <tr>
+                <td><strong>FR-07</strong></td>
+                <td>AI Topic Proposal Engine</td>
+                <td>AI shall suggest relevant tailored topics daily (e.g. 3–5 recommendations). Complete drafting shall
+                  not start until human confirms or provides topic.</td>
+                <td><span class="tag-pill tag-decision">Product Decision</span></td>
+              </tr>
+              <tr>
+                <td><strong>FR-08</strong></td>
+                <td>Automated Content Synthesis</td>
+                <td>System shall generate complete articles with Title, Introduction, H2/H3 Headings, Body, and
+                  Conclusion.</td>
+                <td><span class="tag-pill tag-assessment">Assessment Req</span></td>
+              </tr>
+              <tr>
+                <td><strong>FR-09</strong></td>
+                <td>Automated Technical SEO</td>
+                <td>System shall generate SEO page title (55-60 chars target), meta description (140-160 chars target),
+                  and semantic keywords.</td>
+                <td><span class="tag-pill tag-decision">Product Decision</span></td>
+              </tr>
+              <tr>
+                <td><strong>FR-10</strong></td>
+                <td>Editor 15-Minute Handoff Timer</td>
+                <td>Upon draft readiness, a 15-minute countdown starts. Inactivity auto-submits to Reviewer; Edit Mode
+                  suspends handoff.</td>
+                <td><span class="tag-pill tag-decision">Product Decision</span></td>
+              </tr>
+              <tr>
+                <td><strong>FR-11</strong></td>
+                <td>Conversational Edit Mode</td>
+                <td>Editor can rewrite text, modify headings, prompt AI, upload PDF references, and use voice dictation.
+                </td>
+                <td><span class="tag-pill tag-decision">Product Decision</span></td>
+              </tr>
+              <tr>
+                <td><strong>FR-12</strong></td>
+                <td>Global vs Override Formatting</td>
+                <td>Current blog overrides must apply strictly to the active post and never silently alter the company
+                  Global Blog Format.</td>
+                <td><span class="tag-pill tag-decision">Product Decision</span></td>
+              </tr>
+              <tr>
+                <td><strong>FR-13</strong></td>
+                <td>Time-Gated Review Windows</td>
+                <td>Enforce review actions based on publish deadline: Before 3:40 (Approve/Improve), 3:40-3:50
+                  (Approve/Reject/Reschedule), 3:55-4:00 (Emergency Reject).</td>
+                <td><span class="tag-pill tag-decision">Product Decision</span></td>
+              </tr>
+              <tr>
+                <td><strong>FR-14</strong></td>
+                <td>Need Improvement Thread Continuity</td>
+                <td>Reviewer comments and audio notes must inject into the active Editor ↔ AI conversation thread
+                  without creating new chats.</td>
+                <td><span class="tag-pill tag-decision">Product Decision</span></td>
+              </tr>
+              <tr>
+                <td><strong>FR-15</strong></td>
+                <td>Publishing Schedule Ownership</td>
+                <td>Reviewers can modify weekly publishing schedules (Mon–Sun 24h); Company Admins and Editors are
+                  restricted to Read-Only.</td>
+                <td><span class="tag-pill tag-decision">Product Decision</span></td>
+              </tr>
+              <tr>
+                <td><strong>FR-16</strong></td>
+                <td>WordPress REST Dispatch</td>
+                <td>System shall publish approved posts via WordPress REST API using WordPress Application Passwords and
+                  verify successful publication response.</td>
+                <td><span class="tag-pill tag-decision">Product Decision</span></td>
+              </tr>
+              <tr>
+                <td><strong>FR-17</strong></td>
+                <td>Single Active Cycle Invariant</td>
+                <td>System shall maintain strictly one active blog cycle per company. Subsequent cycles cannot start
+                  until current completes.</td>
+                <td><span class="tag-pill tag-decision">Product Decision</span></td>
+              </tr>
+              <tr>
+                <td><strong>FR-18</strong></td>
+                <td>Tenant Isolation Guarantee</td>
+                <td>System shall prevent any cross-company leakage of profiles, prompts, conversations, drafts, or
+                  credentials.</td>
+                <td><span class="tag-pill tag-decision">Product Decision</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- SECTION 30 -->
+      <section id="sec-30">
+        <h2>
+          30. Product-Level Security Requirements
+          <span class="tag-pill tag-decision">Approved Product Design</span>
+        </h2>
+        <div class="card-grid">
+          <div class="card danger-border">
+            <h4>Credential & Token Protection</h4>
+            <ul>
+              <li>Zero plaintext password storage; all passwords hashed with enterprise cryptographic salts.</li>
+              <li>Third-party publishing credentials (WordPress Application Passwords) encrypted at rest.</li>
+              <li>Browser password autofill supported; system never retains plaintext in session state.</li>
+            </ul>
+          </div>
+          <div class="card warning-border">
+            <h4>Destructive Action Safeguards</h4>
+            <ul>
+              <li>"Delete Company Account" requires explicit re-authentication and double confirmation.</li>
+              <li>User account deactivation revokes access tokens immediately while preserving audit logs.</li>
+              <li>Rate limiting on sensitive endpoints prevents credential stuffing.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 31 -->
+      <section id="sec-31">
+        <h2>
+          31. Tenant Isolation Requirements
+          <span class="tag-pill tag-decision">Approved Product Design</span>
+        </h2>
+        <p>
+          DailyBlog AI strictly adheres to multi-tenant isolation. Company A and Company B operate in hermetically
+          sealed virtual compartments:
+        </p>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Tenant Resource</th>
+                <th>Isolation Guarantee & Security Boundary</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Company Profile & Brand Rules</strong></td>
+                <td>Partitioned by unique Tenant ID. Context injections strictly bound to requesting tenant.</td>
+              </tr>
+              <tr>
+                <td><strong>User Accounts & Roles</strong></td>
+                <td>Users exist strictly within their company hierarchy; no cross-company role inheritance.</td>
+              </tr>
+              <tr>
+                <td><strong>Conversational Chat Memory</strong></td>
+                <td>AI conversation histories and temporary working memory are private to tenant and user.</td>
+              </tr>
+              <tr>
+                <td><strong>Drafts, Blogs & Accepted Archive</strong></td>
+                <td>All blog entities are locked to tenant ownership; API queries filter by authenticated tenant.</td>
+              </tr>
+              <tr>
+                <td><strong>Publishing Credentials</strong></td>
+                <td>Publishing credentials are encrypted at rest, scoped to the company's publishing integration, and
+                  never exposed in normal API responses or UI.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- SECTION 32 -->
+      <section id="sec-32">
+        <h2>
+          32. Human-in-the-Loop Safeguards
+          <span class="tag-pill tag-assessment">Assessment & Product Core</span>
+        </h2>
+        <p>
+          The platform enforces a strict boundary between automated generation and publication authorization:
+        </p>
+        <ul>
+          <li><strong>AI Role:</strong> The AI proposes topics, drafts text, suggests SEO tags, formats copy, and
+            iterates on feedback. <em>The AI cannot publish content autonomously.</em></li>
+          <li><strong>Human Role:</strong> Humans select topics, review drafts, edit copy, provide subjective feedback,
+            approve posts, and control publishing schedules.</li>
+          <li><strong>Dual-Gate Defense:</strong> An article must survive both the <strong>Editor Control
+              Window</strong> and the <strong>Reviewer Decision Window</strong> before reaching external publishing
+            endpoints.</li>
+        </ul>
+      </section>
+
+      <!-- SECTION 33 -->
+      <section id="sec-33">
+        <h2>
+          33. Product Success Criteria
+          <span class="tag-pill tag-assessment">Assessment Evaluation</span>
+        </h2>
+        <div class="card-grid">
+          <div class="card success-border">
+            <h4>1. Reduce Manual Effort</h4>
+            <p>Reduce manual content-writing effort and operational friction involved in daily blog creation.</p>
+          </div>
+          <div class="card success-border">
+            <h4>2. Company-Specific Content</h4>
+            <p>Produce industry-specific, original, and company-related content tailored to products and audience.</p>
+          </div>
+          <div class="card success-border">
+            <h4>3. Brand Voice Consistency</h4>
+            <p>Maintain consistent brand tone, reading level, and style across daily generated articles.</p>
+          </div>
+          <div class="card success-border">
+            <h4>4. SEO-Friendly Content</h4>
+            <p>Produce search-friendly titles, keywords, meta descriptions, and structured heading hierarchies.</p>
+          </div>
+          <div class="card success-border">
+            <h4>5. Human Editorial Control</h4>
+            <p>Preserve final editorial control with the company through structured review, editing, and approval gates.
+            </p>
+          </div>
+          <div class="card success-border">
+            <h4>6. Reliable Scheduling &amp; Publishing</h4>
+            <p>Support dependable weekly publishing cadence and automated headless dispatch to company websites.</p>
+          </div>
+          <div class="card success-border">
+            <h4>7. Prevent Data Leakage</h4>
+            <p>Enforce strict tenant isolation ensuring zero cross-company exposure of data, memory, or credentials.</p>
+          </div>
+          <div class="card success-border">
+            <h4>8. Traceable States</h4>
+            <p>Provide clear, auditable review and publishing states across all stages of the daily content lifecycle.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 34 -->
+      <section id="sec-34">
+        <h2>
+          34. Assumptions and Open Questions
+          <span class="tag-pill tag-assumption">Assumptions & Traceability</span>
+        </h2>
+        <div class="card-grid">
+          <div class="card warning-border">
+            <h4>Documented Assumptions</h4>
+            <ul>
+              <li><strong>[ASSUMPTION-01]:</strong> WordPress sites utilize standard REST API endpoints enabled with
+                WordPress Application Passwords.</li>
+              <li><strong>[ASSUMPTION-02]:</strong> Reviewer and Editor email domains match the Company Admin's
+                registered corporate domain for automated routing.</li>
+              <li><strong>[ASSUMPTION-03]:</strong> Audio dictation and voice comments leverage standard browser Web
+                Audio APIs for transcription capture.</li>
+            </ul>
+          </div>
+          <div class="card secondary-border">
+            <h4>Open Product Questions (For Document 2 / Future Roadmap)</h4>
+            <ul>
+              <li><strong>[QUESTION-01]:</strong> Will future iterations require automated multi-lingual blog generation
+                and translation pipelines?</li>
+              <li><strong>[QUESTION-02]:</strong> Should Reviewers be permitted to re-assign an active draft to a
+                secondary Editor during emergency leave?</li>
+              <li><strong>[QUESTION-03]:</strong> Should the platform support automated stock photography
+                generation/retrieval for featured images?</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- FOOTER -->
+      <footer>
+        <p>DailyBlog AI — Product Requirements &amp; User Journey Blueprint | Document 1</p>
+        <p>Confidential &amp; Proprietary — Designed for Assessment Evaluation &amp; Enterprise Governance</p>
+      </footer>
+
+    </main>
+  </div>
+
+</body>
+
+</html>

@@ -1,0 +1,3547 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DailyBlog AI — System Architecture &amp; AI Blueprint (Document 2)</title>
+  <style>
+    :root {
+      --primary: #4f46e5;
+      --primary-light: #eef2ff;
+      --primary-dark: #3730a3;
+      --secondary: #0ea5e9;
+      --secondary-light: #e0f2fe;
+      --accent: #8b5cf6;
+      --accent-light: #f5f3ff;
+      --success: #10b981;
+      --success-light: #ecfdf5;
+      --warning: #f59e0b;
+      --warning-light: #fffbeb;
+      --danger: #ef4444;
+      --danger-light: #fef2f2;
+      --slate-50: #f8fafc;
+      --slate-100: #f1f5f9;
+      --slate-200: #e2e8f0;
+      --slate-300: #cbd5e1;
+      --slate-400: #94a3b8;
+      --slate-500: #64748b;
+      --slate-600: #475569;
+      --slate-700: #334155;
+      --slate-800: #1e293b;
+      --slate-900: #0f172a;
+      --card-bg: #ffffff;
+      --border: #e2e8f0;
+      --radius: 12px;
+      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+      --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+      --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      color: var(--slate-800);
+      background-color: var(--slate-50);
+      line-height: 1.6;
+    }
+
+    .app-container {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* Sidebar Navigation */
+    .sidebar {
+      width: 330px;
+      background: var(--slate-900);
+      color: #fff;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+      padding: 24px 16px;
+      flex-shrink: 0;
+      box-shadow: 4px 0 10px rgba(0, 0, 0, 0.05);
+    }
+
+    .sidebar-header {
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--slate-800);
+      margin-bottom: 20px;
+    }
+
+    .sidebar-header .badge-doc {
+      display: inline-block;
+      background: var(--secondary);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 8px;
+      border-radius: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+
+    .sidebar-header h1 {
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      color: #fff;
+    }
+
+    .sidebar-header p {
+      font-size: 12px;
+      color: var(--slate-400);
+      margin-top: 4px;
+    }
+
+    .sidebar-nav ul {
+      list-style: none;
+    }
+
+    .sidebar-nav li {
+      margin-bottom: 2px;
+    }
+
+    .sidebar-nav a {
+      display: block;
+      color: var(--slate-300);
+      text-decoration: none;
+      font-size: 13px;
+      padding: 7px 12px;
+      border-radius: 6px;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .sidebar-nav a:hover {
+      background: var(--slate-800);
+      color: #fff;
+      padding-left: 16px;
+    }
+
+    .sidebar-nav .nav-category {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--slate-400);
+      font-weight: 700;
+      padding: 16px 12px 6px;
+    }
+
+    /* Main Content Area */
+    .main-content {
+      flex: 1;
+      padding: 40px 60px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    /* Header Banner */
+    .doc-banner {
+      background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #312e81 100%);
+      color: #fff;
+      padding: 40px;
+      border-radius: var(--radius);
+      margin-bottom: 40px;
+      box-shadow: var(--shadow-lg);
+      position: relative;
+      overflow: hidden;
+      border-left: 6px solid var(--secondary);
+    }
+
+    .doc-banner h1 {
+      font-size: 32px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      margin-bottom: 12px;
+    }
+
+    .doc-banner p.subtitle {
+      font-size: 16px;
+      color: #c7d2fe;
+      max-width: 820px;
+      line-height: 1.5;
+    }
+
+    .banner-tags {
+      display: flex;
+      gap: 12px;
+      margin-top: 20px;
+      flex-wrap: wrap;
+    }
+
+    .banner-tag {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(8px);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    /* Classification Badges */
+    .tag-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 3px 10px;
+      border-radius: 9999px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-right: 6px;
+      vertical-align: middle;
+    }
+
+    .tag-assessment {
+      background: #eff6ff;
+      color: #1d4ed8;
+      border: 1px solid #bfdbfe;
+    }
+
+    .tag-decision {
+      background: #f5f3ff;
+      color: #6d28d9;
+      border: 1px solid #ddd6fe;
+    }
+
+    .tag-arch {
+      background: #e0f2fe;
+      color: #0369a1;
+      border: 1px solid #bae6fd;
+    }
+
+    .tag-assumption {
+      background: #fefce8;
+      color: #a16207;
+      border: 1px solid #fef08a;
+    }
+
+    .tag-future {
+      background: #f1f5f9;
+      color: #475569;
+      border: 1px solid #cbd5e1;
+    }
+
+    .tag-implemented {
+      background: #ecfdf5;
+      color: #047857;
+      border: 1px solid #a7f3d0;
+    }
+
+    .tag-target {
+      background: #e0f2fe;
+      color: #0369a1;
+      border: 1px solid #bae6fd;
+    }
+
+    .tag-planned {
+      background: #fefce8;
+      color: #a16207;
+      border: 1px solid #fef08a;
+    }
+
+    /* Section Containers */
+    section {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      padding: 32px;
+      margin-bottom: 32px;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-sm);
+    }
+
+    h2 {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--slate-900);
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid var(--slate-100);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    h3 {
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--slate-800);
+      margin: 24px 0 12px;
+    }
+
+    h4 {
+      font-size: 14.5px;
+      font-weight: 600;
+      color: var(--slate-700);
+      margin: 16px 0 8px;
+    }
+
+    p {
+      margin-bottom: 16px;
+      color: var(--slate-700);
+      font-size: 14.5px;
+    }
+
+    ul,
+    ol {
+      margin: 0 0 20px 24px;
+      color: var(--slate-700);
+      font-size: 14.5px;
+    }
+
+    li {
+      margin-bottom: 8px;
+    }
+
+    /* Cards & Grids */
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+      margin: 20px 0;
+    }
+
+    .card {
+      background: var(--slate-50);
+      border: 1px solid var(--slate-200);
+      border-radius: 10px;
+      padding: 20px;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+      border-color: var(--primary);
+    }
+
+    .card.primary-border {
+      border-left: 4px solid var(--primary);
+    }
+
+    .card.secondary-border {
+      border-left: 4px solid var(--secondary);
+    }
+
+    .card.accent-border {
+      border-left: 4px solid var(--accent);
+    }
+
+    .card.warning-border {
+      border-left: 4px solid var(--warning);
+    }
+
+    .card.success-border {
+      border-left: 4px solid var(--success);
+    }
+
+    .card.danger-border {
+      border-left: 4px solid var(--danger);
+    }
+
+    .card h4 {
+      margin-top: 0;
+      color: var(--slate-900);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    /* Tables */
+    .table-container {
+      overflow-x: auto;
+      margin: 20px 0;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13.5px;
+      text-align: left;
+    }
+
+    th {
+      background: var(--slate-100);
+      color: var(--slate-700);
+      font-weight: 700;
+      padding: 12px 16px;
+      border-bottom: 2px solid var(--border);
+      white-space: nowrap;
+    }
+
+    td {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      color: var(--slate-700);
+      vertical-align: top;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    tr:hover td {
+      background: var(--slate-50);
+    }
+
+    /* Diagram Containers */
+    .diagram-wrapper {
+      background: #fafbfc;
+      border: 1px solid var(--slate-200);
+      border-radius: 10px;
+      padding: 24px;
+      margin: 24px 0;
+      text-align: center;
+      overflow-x: auto;
+    }
+
+    .diagram-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--slate-600);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 16px;
+      display: block;
+      text-align: center;
+    }
+
+    .diagram-wrapper svg {
+      max-width: 100%;
+      height: auto;
+    }
+
+    /* Callouts */
+    .callout {
+      padding: 16px 20px;
+      border-radius: 8px;
+      margin: 20px 0;
+      font-size: 14px;
+      border-left: 4px solid;
+    }
+
+    .callout-info {
+      background: #eff6ff;
+      border-color: #3b82f6;
+      color: #1e40af;
+    }
+
+    .callout-warning {
+      background: #fffbeb;
+      border-color: #f59e0b;
+      color: #92400e;
+    }
+
+    .callout-danger {
+      background: #fef2f2;
+      border-color: #ef4444;
+      color: #991b1b;
+    }
+
+    .callout-success {
+      background: #ecfdf5;
+      border-color: #10b981;
+      color: #065f46;
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 12.5px;
+      background: var(--slate-100);
+      color: #c026d3;
+      padding: 2px 6px;
+      border-radius: 4px;
+      border: 1px solid var(--slate-200);
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      padding: 40px;
+      color: var(--slate-400);
+      font-size: 13px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="app-container">
+    <!-- SIDEBAR NAVIGATION -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <span class="badge-doc">Document 02</span>
+        <h1>DailyBlog AI</h1>
+        <p>System Architecture &amp; AI Blueprint</p>
+      </div>
+
+      <nav class="sidebar-nav">
+        <ul>
+          <div class="nav-category">System Foundations</div>
+          <li><a href="#sec-1">1. Architecture Executive Summary</a></li>
+          <li><a href="#sec-2">2. Architecture Principles</a></li>
+          <li><a href="#sec-3">3. Complete System Architecture</a></li>
+          <li><a href="#sec-4">4. Technology Stack Specification</a></li>
+          <li><a href="#sec-5">5. Multi-Tenant Architecture</a></li>
+          <li><a href="#sec-6">6. Authentication &amp; RBAC</a></li>
+
+          <div class="nav-category">AI &amp; Data Pipeline</div>
+          <li><a href="#sec-7">7. Company AI Context</a></li>
+          <li><a href="#sec-8">8. Ingestion &amp; RAG Architecture</a></li>
+          <li><a href="#sec-9">9. Memory Architecture</a></li>
+          <li><a href="#sec-10">10. Social Intelligence Ingestion</a></li>
+          <li><a href="#sec-11">11. LangGraph AI Orchestration</a></li>
+          <li><a href="#sec-prompt-contracts">11.1 AI Prompt Architecture &amp; Contracts</a></li>
+          <li><a href="#sec-12">12. Blog Format Architecture</a></li>
+          <li><a href="#sec-13">13. SEO Pipeline &amp; Validation</a></li>
+
+          <div class="nav-category">State Machines &amp; Workflows</div>
+          <li><a href="#sec-14">14. Editor-AI Thread Architecture</a></li>
+          <li><a href="#sec-15">15. Editor 15-Minute State Machine</a></li>
+          <li><a href="#sec-16">16. Reviewer Decision State Machine</a></li>
+          <li><a href="#sec-17">17. Rescheduling Architecture</a></li>
+          <li><a href="#sec-18">18. Scheduling &amp; Celery Beat</a></li>
+          <li><a href="#sec-19">19. WordPress Headless Publishing</a></li>
+
+          <div class="nav-category">Service Infrastructure</div>
+          <li><a href="#sec-app-modules">20.0 Application Modules &amp; Responsibilities</a></li>
+          <li><a href="#sec-20">20. API Layer Architecture</a></li>
+          <li><a href="#sec-21">21. Database / ER Architecture</a></li>
+          <li><a href="#sec-22">22. Redis &amp; Celery Queue</a></li>
+          <li><a href="#sec-23">23. n8n Automation Boundary</a></li>
+          <li><a href="#sec-24">24. Frontend React Architecture</a></li>
+
+          <div class="nav-category">Governance &amp; Resilience</div>
+          <li><a href="#sec-25">25. Security &amp; Credential Defense</a></li>
+          <li><a href="#sec-26">26. Failure &amp; Recovery Protocols</a></li>
+          <li><a href="#sec-27">27. End-to-End Technical Sequence</a></li>
+          <li><a href="#sec-28">28. Architecture Decisions &amp; Trade-offs</a></li>
+          <li><a href="#sec-29">29. Assumptions &amp; Deferred Items</a></li>
+          <li><a href="#sec-30">30. Architecture Validation Checklist</a></li>
+        </ul>
+      </nav>
+    </aside>
+
+    <!-- MAIN CONTENT AREA -->
+    <main class="main-content">
+
+      <!-- BANNER -->
+      <header class="doc-banner">
+        <h1>DailyBlog AI — System Architecture &amp; AI Blueprint</h1>
+        <p class="subtitle">
+          Technical Architecture Specification and AI Orchestration Blueprint (Document 2).
+          Translates the frozen Product Requirements (Document 1) into an enterprise-grade, multi-tenant technical
+          system
+          powered by FastAPI, PostgreSQL + pgvector, Redis, Celery, LangGraph, and a headless WordPress REST API
+          adapter.
+        </p>
+        <div class="banner-tags">
+          <span class="banner-tag">Specification: Document 2 (Architecture Blueprint)</span>
+          <span class="banner-tag">Source of Truth: Document 1 (Frozen Product PRD)</span>
+          <span class="banner-tag">Core Orchestrator: LangGraph Workflow Engine (Target Architecture)</span>
+          <span class="banner-tag">Vector Subsystem: PostgreSQL + pgvector (Tenant-Scoped Filtering)</span>
+          <span class="banner-tag">Status: Architecture Specification &amp; Implementation Blueprint</span>
+        </div>
+      </header>
+
+      <!-- IMPLEMENTATION STATUS LEGEND -->
+      <div class="callout callout-info"
+        style="border-left: 4px solid var(--secondary); background: #f8fafc; margin: 0 0 32px 0;">
+        <h4
+          style="margin: 0 0 8px 0; color: var(--slate-900); display: flex; align-items: center; justify-content: space-between;">
+          <span><strong>IMPLEMENTATION STATUS LEGEND &amp; GOVERNANCE MODEL</strong></span>
+          <span class="tag-pill tag-arch">Engineering Governance</span>
+        </h4>
+        <p style="font-size: 13.5px; margin-bottom: 12px; color: var(--slate-600);">
+          This document defines the comprehensive system architecture and AI orchestration blueprint for DailyBlog AI.
+          To maintain rigorous engineering transparency between verified backend/platform implementation, specified
+          target designs, and deferred enhancements, technical claims throughout this document are classified into three
+          precise status tiers:
+        </p>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px;">
+          <div
+            style="background: #ffffff; padding: 14px 16px; border-radius: 8px; border: 1px solid var(--slate-200); border-left: 4px solid var(--success);">
+            <div style="margin-bottom: 6px;"><span class="tag-pill tag-implemented">[IMPLEMENTED]</span></div>
+            <p style="font-size: 12.5px; margin: 0; color: var(--slate-700); line-height: 1.5;">Verified
+              backend/platform capability from the development work.</p>
+          </div>
+          <div
+            style="background: #ffffff; padding: 14px 16px; border-radius: 8px; border: 1px solid var(--slate-200); border-left: 4px solid var(--secondary);">
+            <div style="margin-bottom: 6px;"><span class="tag-pill tag-target">[ARCHITECTURE / DESIGN]</span></div>
+            <p style="font-size: 12.5px; margin: 0; color: var(--slate-700); line-height: 1.5;">Specified target
+              architecture or technical design.</p>
+          </div>
+          <div
+            style="background: #ffffff; padding: 14px 16px; border-radius: 8px; border: 1px solid var(--slate-200); border-left: 4px solid var(--warning);">
+            <div style="margin-bottom: 6px;"><span class="tag-pill tag-planned">[PLANNED / DEFERRED]</span></div>
+            <p style="font-size: 12.5px; margin: 0; color: var(--slate-700); line-height: 1.5;">Future connector,
+              production hardening, or unfinished component.</p>
+          </div>
+        </div>
+        <p style="font-size: 12px; color: var(--slate-500); margin: 12px 0 0 0; font-style: italic;">
+          Note: In accordance with project history, core backend platform foundations (identity &amp; access,
+          multi-tenant database models, company context, access requests, credential encryption, and mocked integration
+          services) were established during backend development phases, while production LangGraph runtime
+          orchestration, live third-party WordPress dispatch, and frontend React UI represent architectural targets and
+          planned enhancements.
+        </p>
+      </div>
+
+      <!-- SECTION 1 -->
+      <section id="sec-1">
+        <h2>
+          1. Architecture Executive Summary
+          <span class="tag-pill tag-arch">Architecture Decision</span>
+        </h2>
+        <p>
+          The <strong>DailyBlog AI System Architecture</strong> defines the technical implementation required to fulfill
+          the
+          multi-tenant, human-governed automated content platform specified in <em>Document 1</em>.
+          While Document 1 defines <strong>WHAT</strong> the product accomplishes across company workflows,
+          Document 2 establishes <strong>HOW</strong> the system is structured, partitioned, orchestrated, and
+          persisted.
+        </p>
+        <p>
+          The planned architecture eliminates the fragility of unconstrained scripts by decoupling synchronous web
+          interactions
+          from stateful generative AI loops and asynchronous CMS dispatch pipelines:
+        </p>
+        <div class="card-grid">
+          <div class="card primary-border">
+            <h4>FastAPI &amp; Clean Layering</h4>
+            <p>
+              <span class="tag-pill tag-implemented">[IMPLEMENTED]</span>
+              High-performance asynchronous REST API built with FastAPI and Pydantic schemas.
+              Strictly separates presentation routing from domain business services and repository query layers. Core
+              routing and dependency injection implemented.
+            </p>
+          </div>
+          <div class="card secondary-border">
+            <h4>PostgreSQL + pgvector Dual Engine</h4>
+            <p>
+              <span class="tag-pill tag-implemented">[IMPLEMENTED / DESIGN]</span>
+              Unifies relational business state (tenants, users, schedules, reviews, audit logs) and dense vector
+              embeddings
+              in a single durable PostgreSQL store with tenant-scoped filtering, avoiding distributed split-brain
+              failure modes.
+            </p>
+          </div>
+          <div class="card accent-border">
+            <h4>LangGraph State Machine</h4>
+            <p>
+              <span class="tag-pill tag-target">[ARCHITECTURE / DESIGN]</span>
+              Stateful graph orchestration coordinating multi-step research, outlining, drafting, SEO validation,
+              and Human-in-the-Loop approval checkpoints with explicit checkpoint persistence. Specified target AI
+              engine.
+            </p>
+          </div>
+          <div class="card warning-border">
+            <h4>Redis &amp; Celery Asynchronous Workers</h4>
+            <p>
+              <span class="tag-pill tag-target">[ARCHITECTURE / DESIGN]</span>
+              Decouples scheduled publishing dispatch, periodic scheduler jobs (Celery Beat),
+              background ingestion/processing where appropriate, and long-running asynchronous tasks from synchronous
+              client HTTP lifecycles,
+              while LangGraph orchestrates the stateful AI workflow and human-in-the-loop state transitions.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 2 -->
+      <section id="sec-2">
+        <h2>
+          2. Architecture Principles
+          <span class="tag-pill tag-arch">Architecture Decision</span>
+        </h2>
+        <p>
+          The planned architecture adheres to eight non-negotiable architectural principles:
+        </p>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Principle</th>
+                <th>Architectural Meaning &amp; Enforcement</th>
+                <th>Failure Mode Prevented</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>1. Tenant Partitioning</strong></td>
+                <td>Tenant ID (<code>company_id</code>) is injected at authenticated boundaries and enforced across SQL
+                  queries, pgvector cosine queries with tenant-scoped filtering, and thread checkpoints.</td>
+                <td>Cross-company data leakage or competitive prompt poisoning.</td>
+              </tr>
+              <tr>
+                <td><strong>2. Single Cycle Invariant</strong></td>
+                <td><strong>AT MOST ONE ACTIVE BLOG CYCLE PER COMPANY</strong>: Exactly 0 active cycles = valid idle
+                  state; exactly 1 active cycle = valid post in progress; 2+ active cycles = strictly invalid and
+                  blocked by concurrency controls. This invariant is protected through transactional concurrency
+                  enforcement (database transaction isolation, conditional/partial uniqueness enforcement, row-level
+                  locking during cycle initiation, and atomic state transitions). A company may have many historical
+                  blogs, at most one active blog cycle at any given time, and future recurring schedule definitions.
+                </td>
+                <td>Concurrent draft collisions, race conditions during cycle initiation, or duplicate scheduled
+                  publications.</td>
+              </tr>
+              <tr>
+                <td><strong>3. Human Editorial Gate</strong></td>
+                <td>Automated publishing cannot occur without explicit Reviewer approval passing time-gated review
+                  windows.</td>
+                <td>Unchecked AI hallucinations reaching production company websites.</td>
+              </tr>
+              <tr>
+                <td><strong>4. Stateful Thread Continuity</strong></td>
+                <td>The entire lifecycle of a daily blog (topic, draft, revisions, reviewer comments) remains within a
+                  single unified conversational thread.</td>
+                <td>Disjointed review context or loss of prompt history during revisions.</td>
+              </tr>
+              <tr>
+                <td><strong>5. Separate Memory Planes</strong></td>
+                <td>Short-term ephemeral thread working memory is strictly separated from verified long-term durable
+                  company memory.</td>
+                <td>Transient feedback polluting immutable organizational brand guidelines.</td>
+              </tr>
+              <tr>
+                <td><strong>6. Headless CMS Isolation</strong></td>
+                <td>External publishing providers (WordPress REST API) are encapsulated behind an abstract adapter
+                  interface.</td>
+                <td>Direct coupling to third-party CMS quirks or tight lock-in.</td>
+              </tr>
+              <tr>
+                <td><strong>7. Asynchronous Decoupling</strong></td>
+                <td>Asynchronous and scheduled operations (scheduled publishing, periodic scheduler jobs, background
+                  ingestion/processing, and long-running background tasks where appropriate) execute in Celery worker
+                  queues backed by Redis, while LangGraph orchestrates the stateful AI workflow and human-in-the-loop
+                  state transitions.</td>
+                <td>Blocking API threads or HTTP gateway timeouts during background tasks or complex multi-step
+                  workflows.</td>
+              </tr>
+              <tr>
+                <td><strong>8. Security Defense-in-Depth</strong></td>
+                <td>Passwords hashed with salted algorithms; third-party CMS credentials encrypted at rest; strict rate
+                  limits on OTP/CAPTCHA.</td>
+                <td>Credential harvesting, brute-force entry, or token leakage.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- SECTION 3 -->
+      <section id="sec-3">
+        <h2>
+          3. Complete System Architecture
+          <span class="tag-pill tag-arch">Architecture Decision</span>
+        </h2>
+        <p>
+          The planned architecture comprises a decoupled four-tier structure connecting human actors, the API gateway,
+          background task processors, the stateful AI engine, and external publishing channels:
+        </p>
+
+        <div class="diagram-wrapper">
+          <span class="diagram-title">Visual 1: Complete High-Level System Architecture Diagram</span>
+          <svg viewBox="0 0 1000 520" xmlns="http://www.w3.org/2000/svg">
+            <!-- Client Layer -->
+            <rect x="20" y="20" width="960" height="70" rx="8" fill="#f8fafc" stroke="#94a3b8" stroke-width="1.5" />
+            <text x="35" y="45" fill="#1e293b" font-size="12" font-weight="bold">PRESENTATION TIER (React SPA /
+              Role-Based Dashboards)</text>
+
+            <rect x="180" y="35" width="220" height="42" rx="6" fill="#312e81" />
+            <text x="290" y="60" fill="#ffffff" font-size="11" font-weight="bold" text-anchor="middle">Company Admin
+              Console</text>
+
+            <rect x="430" y="35" width="220" height="42" rx="6" fill="#1e293b" stroke="#0ea5e9" />
+            <text x="540" y="60" fill="#ffffff" font-size="11" font-weight="bold" text-anchor="middle">Reviewer Action
+              Queue</text>
+
+            <rect x="680" y="35" width="220" height="42" rx="6" fill="#0f172a" stroke="#8b5cf6" />
+            <text x="790" y="60" fill="#ffffff" font-size="11" font-weight="bold" text-anchor="middle">Editor AI Chat
+              &amp; Edit Mode</text>
+
+            <!-- Arrow Client to API -->
+            <line x1="500" y1="90" x2="500" y2="125" stroke="#4f46e5" stroke-width="2" marker-end="url(#sys-arr)" />
+
+            <!-- Gateway & Backend Tier -->
+            <rect x="20" y="125" width="960" height="90" rx="8" fill="#eef2ff" stroke="#4f46e5" stroke-width="2" />
+            <text x="35" y="148" fill="#312e81" font-size="12" font-weight="bold">API GATEWAY &amp; SERVICE TIER
+              (FastAPI Asynchronous Engine)</text>
+
+            <rect x="60" y="158" width="160" height="42" rx="6" fill="#ffffff" stroke="#4f46e5" />
+            <text x="140" y="183" fill="#312e81" font-size="11" text-anchor="middle" font-weight="bold">JWT Auth / RBAC
+              Guard</text>
+
+            <rect x="240" y="158" width="160" height="42" rx="6" fill="#ffffff" stroke="#4f46e5" />
+            <text x="320" y="183" fill="#312e81" font-size="11" text-anchor="middle" font-weight="bold">Pydantic Schema
+              Validation</text>
+
+            <rect x="420" y="158" width="160" height="42" rx="6" fill="#ffffff" stroke="#4f46e5" />
+            <text x="500" y="183" fill="#312e81" font-size="11" text-anchor="middle" font-weight="bold">Domain Service
+              Layer</text>
+
+            <rect x="600" y="158" width="160" height="42" rx="6" fill="#ffffff" stroke="#4f46e5" />
+            <text x="680" y="183" fill="#312e81" font-size="11" text-anchor="middle" font-weight="bold">Repository Data
+              Access</text>
+
+            <rect x="780" y="158" width="160" height="42" rx="6" fill="#ffffff" stroke="#4f46e5" />
+            <text x="860" y="183" fill="#312e81" font-size="11" text-anchor="middle" font-weight="bold">Publishing
+              Adapter Hub</text>
+
+            <!-- Connections to Background & Persistence -->
+            <line x1="300" y1="215" x2="300" y2="255" stroke="#64748b" stroke-width="2" marker-end="url(#sys-arr)" />
+            <line x1="700" y1="215" x2="700" y2="255" stroke="#64748b" stroke-width="2" marker-end="url(#sys-arr)" />
+
+            <!-- Queue Tier -->
+            <rect x="20" y="255" width="460" height="95" rx="8" fill="#fffbeb" stroke="#f59e0b" stroke-width="1.5" />
+            <text x="35" y="278" fill="#92400e" font-size="12" font-weight="bold">BACKGROUND EXECUTION (Redis + Celery
+              Workers)</text>
+            <rect x="40" y="290" width="125" height="45" rx="6" fill="#ffffff" stroke="#f59e0b" />
+            <text x="102" y="316" font-size="10.5" text-anchor="middle" font-weight="bold" fill="#b45309">Redis
+              Broker</text>
+
+            <rect x="180" y="290" width="135" height="45" rx="6" fill="#ffffff" stroke="#f59e0b" />
+            <text x="247" y="316" font-size="10.5" text-anchor="middle" font-weight="bold" fill="#b45309">Celery Beat
+              Scheduler</text>
+
+            <rect x="330" y="290" width="135" height="45" rx="6" fill="#ffffff" stroke="#f59e0b" />
+            <text x="397" y="316" font-size="10.5" text-anchor="middle" font-weight="bold" fill="#b45309">Celery Async
+              Workers</text>
+
+            <!-- Persistence Tier -->
+            <rect x="520" y="255" width="460" height="95" rx="8" fill="#ecfdf5" stroke="#10b981" stroke-width="1.5" />
+            <text x="535" y="278" fill="#065f46" font-size="12" font-weight="bold">DURABLE PERSISTENCE (PostgreSQL +
+              pgvector)</text>
+            <rect x="540" y="290" width="135" height="45" rx="6" fill="#ffffff" stroke="#10b981" />
+            <text x="607" y="316" font-size="10.5" text-anchor="middle" font-weight="bold" fill="#047857">Relational
+              Schemas</text>
+
+            <rect x="690" y="290" width="135" height="45" rx="6" fill="#ffffff" stroke="#10b981" />
+            <text x="757" y="316" font-size="10.5" text-anchor="middle" font-weight="bold" fill="#047857">pgvector
+              Embeddings</text>
+
+            <rect x="840" y="290" width="125" height="45" rx="6" fill="#ffffff" stroke="#10b981" />
+            <text x="902" y="316" font-size="10.5" text-anchor="middle" font-weight="bold" fill="#047857">Audit &amp;
+              Checkpoints</text>
+
+            <!-- AI Orchestration & External Tiers -->
+            <line x1="250" y1="350" x2="250" y2="385" stroke="#64748b" stroke-width="2" marker-end="url(#sys-arr)" />
+            <line x1="750" y1="350" x2="750" y2="385" stroke="#64748b" stroke-width="2" marker-end="url(#sys-arr)" />
+
+            <rect x="20" y="385" width="460" height="110" rx="8" fill="#f5f3ff" stroke="#8b5cf6" stroke-width="1.5" />
+            <text x="35" y="410" fill="#5b21b6" font-size="12" font-weight="bold">AI ORCHESTRATION ENGINE (LangGraph
+              State Machine)</text>
+            <rect x="40" y="425" width="125" height="55" rx="6" fill="#ffffff" stroke="#8b5cf6" />
+            <text x="102" y="448" font-size="10" text-anchor="middle" font-weight="bold" fill="#6d28d9">LangGraph
+              Graph</text>
+            <text x="102" y="465" font-size="9" text-anchor="middle" fill="#64748b">HITL State Node</text>
+
+            <rect x="180" y="425" width="135" height="55" rx="6" fill="#ffffff" stroke="#8b5cf6" />
+            <text x="247" y="448" font-size="10" text-anchor="middle" font-weight="bold" fill="#6d28d9">Provider
+              Abstraction</text>
+            <text x="247" y="465" font-size="9" text-anchor="middle" fill="#64748b">Pluggable LLMs</text>
+
+            <rect x="330" y="425" width="135" height="55" rx="6" fill="#ffffff" stroke="#8b5cf6" />
+            <text x="397" y="448" font-size="10" text-anchor="middle" font-weight="bold" fill="#6d28d9">MCP Tool
+              Interface</text>
+            <text x="397" y="465" font-size="9" text-anchor="middle" fill="#64748b">External Tools</text>
+
+            <rect x="520" y="385" width="460" height="110" rx="8" fill="#f8fafc" stroke="#475569" stroke-width="1.5" />
+            <text x="535" y="410" fill="#1e293b" font-size="12" font-weight="bold">EXTERNAL INTEGRATIONS &amp;
+              BOUNDARIES</text>
+            <rect x="540" y="425" width="195" height="55" rx="6" fill="#ffffff" stroke="#0ea5e9" />
+            <text x="637" y="448" font-size="10.5" text-anchor="middle" font-weight="bold" fill="#0369a1">WordPress REST
+              API</text>
+            <text x="637" y="465" font-size="9" text-anchor="middle" fill="#64748b">Application Passwords</text>
+
+            <rect x="755" y="425" width="210" height="55" rx="6" fill="#ffffff" stroke="#64748b" />
+            <text x="860" y="448" font-size="10.5" text-anchor="middle" font-weight="bold" fill="#334155">n8n External
+              Automation</text>
+            <text x="860" y="465" font-size="9" text-anchor="middle" fill="#64748b">Non-Core Workflows</text>
+
+            <defs>
+              <marker id="sys-arr" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6"
+                orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#64748b" />
+              </marker>
+            </defs>
+          </svg>
+        </div>
+      </section>
+
+      <!-- SECTION 4 -->
+      <section id="sec-4">
+        <h2>
+          4. Technology Stack Specification
+          <span class="tag-pill tag-arch">Architecture Decision</span>
+        </h2>
+        <p>
+          The selected technology stack reflects high developer velocity, strict enterprise typing, and production-grade
+          stability:
+        </p>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Layer / Domain</th>
+                <th>Selected Technology</th>
+                <th>Architectural Role &amp; Rationale</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Frontend Core</strong> <span class="tag-pill tag-target">[ARCHITECTURE / DESIGN]</span></td>
+                <td>React / Modern SPA</td>
+                <td>Component-driven SPA enabling rich interactive flows (Today's Chat, 15-min handoff countdown,
+                  dynamic review queues). Planned development tier.</td>
+              </tr>
+              <tr>
+                <td><strong>Backend Framework</strong> <span class="tag-pill tag-implemented">[IMPLEMENTED]</span></td>
+                <td>Python (Python 3.11+ Development Environment) / FastAPI</td>
+                <td>High-throughput asynchronous framework with native OpenAPI schema generation, dependency injection,
+                  and clean architecture layers.</td>
+              </tr>
+              <tr>
+                <td><strong>Schema Validation</strong> <span class="tag-pill tag-implemented">[IMPLEMENTED]</span></td>
+                <td>Pydantic v2</td>
+                <td>Strict runtime validation and schema enforcement for incoming JSON payloads, API responses,
+                  configuration models, and structured AI outputs.</td>
+              </tr>
+              <tr>
+                <td><strong>ORM &amp; Migrations</strong> <span class="tag-pill tag-implemented">[IMPLEMENTED]</span>
+                </td>
+                <td>SQLAlchemy 2.x (Async) + Alembic</td>
+                <td>Declarative database modeling with robust, auditable schema migration management and connection
+                  pooling.</td>
+              </tr>
+              <tr>
+                <td><strong>Primary Database</strong> <span class="tag-pill tag-implemented">[IMPLEMENTED]</span></td>
+                <td>PostgreSQL</td>
+                <td>ACID-compliant relational database serving as the immutable system of record for all organizational
+                  entities and tenant partitions.</td>
+              </tr>
+              <tr>
+                <td><strong>Vector Subsystem</strong> <span class="tag-pill tag-target">[ARCHITECTURE / DESIGN]</span>
+                </td>
+                <td>pgvector Extension</td>
+                <td>Enables dense vector similarity search (HNSW indexing with tenant-scoped filtering by company_id)
+                  directly within the relational database, co-located with tenant metadata.</td>
+              </tr>
+              <tr>
+                <td><strong>Cache &amp; Broker</strong> <span class="tag-pill tag-target">[ARCHITECTURE / DESIGN]</span>
+                </td>
+                <td>Redis</td>
+                <td>In-memory data store acting as task broker for Celery, short-lived coordination state, active edit
+                  locks, and rate-limiting counters.</td>
+              </tr>
+              <tr>
+                <td><strong>Background Queue</strong> <span class="tag-pill tag-target">[ARCHITECTURE / DESIGN]</span>
+                </td>
+                <td>Celery + Celery Beat</td>
+                <td>Distributed asynchronous task worker pool; Celery Beat triggers periodic cron polling against
+                  PostgreSQL schedule records for scheduled publishing.</td>
+              </tr>
+              <tr>
+                <td><strong>AI Orchestration</strong> <span class="tag-pill tag-target">[ARCHITECTURE / DESIGN]</span>
+                </td>
+                <td>LangGraph</td>
+                <td>Primary workflow engine specification providing cyclic graph support, conditional branching, and
+                  persistent human-in-the-loop state. Target architecture.</td>
+              </tr>
+              <tr>
+                <td><strong>AI Utilities</strong> <span class="tag-pill tag-target">[ARCHITECTURE / DESIGN]</span></td>
+                <td>LangChain (Selective)</td>
+                <td>Selected modular utilities (text splitters, document loaders) without imposing monolith framework
+                  lock-in.</td>
+              </tr>
+              <tr>
+                <td><strong>Integration Tooling</strong> <span class="tag-pill tag-planned">[PLANNED / DEFERRED]</span>
+                </td>
+                <td>Model Context Protocol (MCP)</td>
+                <td>Standardized tool interface layer specification allowing the agent to interface cleanly with
+                  external tooling endpoints. Planned integration.</td>
+              </tr>
+              <tr>
+                <td><strong>External Automation</strong> <span class="tag-pill tag-planned">[PLANNED / DEFERRED]</span>
+                </td>
+                <td>n8n (Decoupled)</td>
+                <td>Workflow orchestrator for external peripheral events; strictly forbidden from maintaining core
+                  business state.</td>
+              </tr>
+              <tr>
+                <td><strong>Publishing Gateway</strong> <span class="tag-pill tag-implemented">[IMPLEMENTED (MOCKED) /
+                    LIVE PLANNED]</span></td>
+                <td>WordPress REST API Adapter</td>
+                <td>Initial headless publishing target authenticated via Fernet-encrypted Application Passwords;
+                  verified via connection verification and mocked integration tests. Live external E2E planned.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- SECTION 5 -->
+      <section id="sec-5">
+        <h2>
+          5. Multi-Tenant Architecture
+          <span class="tag-pill tag-arch">Architecture Decision</span>
+        </h2>
+        <p>
+          DailyBlog AI employs a <strong>Logical Multi-Tenant Model</strong> within a shared relational database <span
+            class="tag-pill tag-target">[ARCHITECTURE / DESIGN]</span>.
+          Every entity in the platform is strictly scoped to an authenticated <code>company_id</code>.
+        </p>
+
+        <div class="diagram-wrapper">
+          <span class="diagram-title">Visual 2: Multi-Tenant Data Flow &amp; Scoping Boundary Diagram</span>
+          <svg viewBox="0 0 900 220" xmlns="http://www.w3.org/2000/svg">
+            <!-- Flow Step 1 -->
+            <rect x="20" y="40" width="180" height="70" rx="6" fill="#eef2ff" stroke="#4f46e5" stroke-width="1.5" />
+            <text x="110" y="68" font-size="11" font-weight="bold" fill="#312e81" text-anchor="middle">1. JWT Bearer
+              Token</text>
+            <text x="110" y="88" font-size="10" fill="#475569" text-anchor="middle">Claims: user_id, company_id</text>
+
+            <line x1="200" y1="75" x2="240" y2="75" stroke="#94a3b8" stroke-width="2" marker-end="url(#mt-arr)" />
+
+            <!-- Flow Step 2 -->
+            <rect x="240" y="40" width="190" height="70" rx="6" fill="#e0f2fe" stroke="#0ea5e9" stroke-width="1.5" />
+            <text x="335" y="68" font-size="11" font-weight="bold" fill="#0369a1" text-anchor="middle">2. Request
+              Dependency</text>
+            <text x="335" y="88" font-size="10" fill="#475569" text-anchor="middle">Extracts &amp; binds
+              TenantContext</text>
+
+            <line x1="430" y1="75" x2="470" y2="75" stroke="#94a3b8" stroke-width="2" marker-end="url(#mt-arr)" />
+
+            <!-- Flow Step 3 -->
+            <rect x="470" y="40" width="190" height="70" rx="6" fill="#fdf4ff" stroke="#c084fc" stroke-width="1.5" />
+            <text x="565" y="68" font-size="11" font-weight="bold" fill="#7e22ce" text-anchor="middle">3. Scoped
+              Repository</text>
+            <text x="565" y="88" font-size="10" fill="#475569" text-anchor="middle">Mandatory WHERE company_id =
+              ?</text>
+
+            <line x1="660" y1="75" x2="700" y2="75" stroke="#94a3b8" stroke-width="2" marker-end="url(#mt-arr)" />
+
+            <!-- Flow Step 4 -->
+            <rect x="700" y="40" width="180" height="70" rx="6" fill="#ecfdf5" stroke="#10b981" stroke-width="1.5" />
+            <text x="790" y="68" font-size="11" font-weight="bold" fill="#065f46" text-anchor="middle">4. Isolated
+              Vector Search</text>
+            <text x="790" y="88" font-size="10" fill="#475569" text-anchor="middle">Cosine search tenant-filtered</text>
+
+            <!-- Subtext explanation -->
+            <rect x="20" y="145" width="860" height="45" rx="6" fill="#f8fafc" stroke="#cbd5e1" />
+            <text x="450" y="172" font-size="11.5" fill="#334155" text-anchor="middle" font-weight="bold">
+              Tenant Boundary Enforced: Company A can NEVER query, join, or embed documents belonging to Company B
+            </text>
+
+            <defs>
+              <marker id="mt-arr" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6"
+                orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#94a3b8" />
+              </marker>
+            </defs>
+          </svg>
+        </div>
+
+        <div class="callout callout-info">
+          <strong>Application-Level Multi-Tenancy Defense:</strong>
+          Tenant isolation is enforced by application and data architecture rather than unverified cryptographic
+          infrastructure claims.
+          Database session wrappers inject a scoped filter on every entity query.
+          Vector searches execute over HNSW/vector similarity indexing with tenant-scoped filtering by company_id:
+          <code>WHERE company_id = :current_company_id ORDER BY embedding &lt;=&gt; :query_vec</code>.
+          <strong>Core Invariant:</strong> Company A retrieval MUST NOT return Company B knowledge under any operational
+          condition.
+        </div>
+      </section>
+
+      <!-- SECTION 6 -->
+      <section id="sec-6">
+        <h2>
+          6. Authentication &amp; RBAC Architecture
+          <span class="tag-pill tag-arch">Architecture Decision</span>
+        </h2>
+        <p>
+          The authentication architecture implements stateless JSON Web Tokens (JWT) with fine-grained Role-Based Access
+          Control (RBAC).
+          The system enforces strict vertical authority:
+        </p>
+
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Role</th>
+                <th>Identity &amp; Scoping Token</th>
+                <th>Administrative Scope</th>
+                <th>Credential Expiry Rule</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Company Admin</strong></td>
+                <td><code>role: "admin", company_id: UUID</code></td>
+                <td>Workspace creator. Manages Reviewers, plugins, CMS credentials, and organizational settings.</td>
+                <td>Permanent credential established upon 4-stage registration.</td>
+              </tr>
+              <tr>
+                <td><strong>Reviewer</strong></td>
+                <td><code>role: "reviewer", company_id: UUID</code></td>
+                <td>Editorial gatekeeper. Manages Editors, publishing schedule, and reviews incoming blog drafts.</td>
+                <td>Temporary password expires in <strong>42 hours</strong>; forced reset on first login.</td>
+              </tr>
+              <tr>
+                <td><strong>Editor</strong></td>
+                <td><code>role: "editor", company_id: UUID, reviewer_id: UUID</code></td>
+                <td>Content co-pilot. Operates AI chat, selects topics, customizes drafts in Edit Mode.</td>
+                <td>Temporary password expires in <strong>48 hours</strong>; forced reset on first login.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="callout callout-warning">
+          <strong>FastAPI RBAC Security Dependencies:</strong>
+          Endpoints are guarded by reusable FastAPI dependencies (e.g.
+          <code>Depends(require_role(["reviewer", "admin"]))</code>)
+          which inspect the verified JWT claims and validate the tenant scope before reaching business services.
+        </div>
+      </section>
+
+      <!-- SECTION 7 -->
+      <section id="sec-7">
+        <h2>
+          7. Company AI Context Architecture
+          <span class="tag-pill tag-arch">Architecture Decision</span>
+        </h2>
+        <p>
+          To ensure generated content is accurate and brand-aligned without hallucinating generic filler,
+          the AI relies on a structured, multi-source context model. Data is stored in appropriate storage subsystems:
+        </p>
+
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Data Element</th>
+                <th>Storage Subsystem</th>
+                <th>Retrieval Mechanism</th>
+                <th>Update Cadence</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Company Name, Type, Description</strong></td>
+                <td>PostgreSQL <code>companies</code> table</td>
+                <td>Direct relational query</td>
+                <td>On Admin setting update</td>
+              </tr>
+              <tr>
+                <td><strong>Brand Voice Guidelines &amp; Dos/Don'ts</strong></td>
+                <td>PostgreSQL <code>company_ai_profiles</code></td>
+                <td>System prompt injection</td>
+                <td>Managed by Editor / Admin</td>
+              </tr>
+              <tr>
+                <td><strong>Products, Services &amp; Audience</strong></td>
+                <td>PostgreSQL <code>company_ai_profiles</code></td>
+                <td>System prompt injection</td>
+                <td>Updated as offerings evolve</td>
+              </tr>
+              <tr>
+                <td><strong>Approved Whitepapers &amp; Factsheets</strong></td>
+                <td>PostgreSQL <code>knowledge_chunks</code> (pgvector)</td>
+                <td>Vector similarity retrieval (RAG)</td>
+                <td>Ingested on document upload</td>
+              </tr>
+              <tr>
+                <td><strong>Previously Published Blog History</strong></td>
+                <td>PostgreSQL <code>blogs</code> table</td>
+                <td>Recent topic query (rolling 30 days)</td>
+                <td>Appended upon post approval</td>
+              </tr>
+              <tr>
+                <td><strong>Active Daily Conversation &amp; Edits</strong></td>
+                <td>PostgreSQL <code>blog_chat_messages</code></td>
+                <td>Thread state / LangGraph checkpointer</td>
+                <td>Real-time in-session chat</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- SECTION 8 -->
+      <section id="sec-8">
+        <h2>
+          8. Knowledge Ingestion &amp; RAG Architecture
+          <span class="tag-pill tag-arch">Architecture Decision</span>
+        </h2>
+        <p>
+          The Retrieval-Augmented Generation (RAG) pipeline ingests reference documents (PDF, DOCX, TXT) and indexes
+          them for precise similarity search:
+        </p>
+
+        <div class="diagram-wrapper">
+          <span class="diagram-title">Visual 3: Asynchronous Knowledge Ingestion &amp; RAG Pipeline</span>
+          <svg viewBox="0 0 950 140" xmlns="http://www.w3.org/2000/svg">
+            <!-- Step 1 -->
+            <rect x="15" y="30" width="130" height="75" rx="6" fill="#eef2ff" stroke="#4f46e5" stroke-width="1.5" />
+            <text x="80" y="58" font-size="11" font-weight="bold" fill="#312e81" text-anchor="middle">1. Doc
+              Upload</text>
+            <text x="80" y="78" font-size="9.5" fill="#475569" text-anchor="middle">PDF, DOCX, TXT</text>
+
+            <line x1="145" y1="67" x2="175" y2="67" stroke="#94a3b8" stroke-width="2" marker-end="url(#rag-arr)" />
+
+            <!-- Step 2 -->
+            <rect x="175" y="30" width="135" height="75" rx="6" fill="#e0f2fe" stroke="#0ea5e9" stroke-width="1.5" />
+            <text x="242" y="58" font-size="11" font-weight="bold" fill="#0369a1" text-anchor="middle">2. Text
+              Extraction</text>
+            <text x="242" y="78" font-size="9.5" fill="#475569" text-anchor="middle">Document parser</text>
+
+            <line x1="310" y1="67" x2="340" y2="67" stroke="#94a3b8" stroke-width="2" marker-end="url(#rag-arr)" />
+
+            <!-- Step 3 -->
+            <rect x="340" y="30" width="135" height="75" rx="6" fill="#fdf4ff" stroke="#c084fc" stroke-width="1.5" />
+            <text x="407" y="58" font-size="11" font-weight="bold" fill="#7e22ce" text-anchor="middle">3.
+              Chunking</text>
+            <text x="407" y="78" font-size="9.5" fill="#475569" text-anchor="middle">Recursive token split</text>
+
+            <line x1="475" y1="67" x2="505" y2="67" stroke="#94a3b8" stroke-width="2" marker-end="url(#rag-arr)" />
+
+            <!-- Step 4 -->
+            <rect x="505" y="30" width="135" height="75" rx="6" fill="#fffbeb" stroke="#f59e0b" stroke-width="1.5" />
+            <text x="572" y="58" font-size="11" font-weight="bold" fill="#92400e" text-anchor="middle">4.
+              Embeddings</text>
+            <text x="572" y="78" font-size="9.5" fill="#475569" text-anchor="middle">Dense vector model</text>
+
+            <line x1="640" y1="67" x2="670" y2="67" stroke="#94a3b8" stroke-width="2" marker-end="url(#rag-arr)" />
+
+            <!-- Step 5 -->
+            <rect x="670" y="30" width="135" height="75" rx="6" fill="#ecfdf5" stroke="#10b981" stroke-width="1.5" />
+            <text x="737" y="58" font-size="11" font-weight="bold" fill="#065f46" text-anchor="middle">5. pgvector
+              Index</text>
+            <text x="737" y="78" font-size="9.5" fill="#475569" text-anchor="middle">HNSW tenant-filtered</text>
+
+            <line x1="805" y1="67" x2="835" y2="67" stroke="#94a3b8" stroke-width="2" marker-end="url(#rag-arr)" />
+
+            <!-- Step 6 -->
+            <rect x="835" y="30" width="100" height="75" rx="6" fill="#312e81" stroke="#4f46e5" stroke-width="1.5" />
+            <text x="885" y="58" font-size="11" font-weight="bold" fill="#ffffff" text-anchor="middle">6. LLM
+              Inflow</text>
+            <text x="885" y="78" font-size="9.5" fill="#c7d2fe" text-anchor="middle">LangGraph</text>
+
+            <defs>
+              <marker id="rag-arr" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6"
+                orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#94a3b8" />
+              </marker>
+            </defs>
+          </svg>
+        </div>
+
+        <p>
+          Chunking utilizes a recursive token strategy where chunking parameters are configurable and selected according
+          to document characteristics and the chosen embedding model.
+          Embeddings are generated via a provider-agnostic embedding interface and stored in PostgreSQL using the
+          pgvector extension
+          in a table containing <code>company_id</code>, <code>document_id</code>, <code>content</code>, and
+          <code>embedding vector</code>.
+          Vector similarity queries employ HNSW indexing with tenant-scoped filtering by <code>company_id</code>,
+          ensuring strict tenant isolation during similarity searches.
+          The vector dimension is determined by the selected embedding model and must remain consistent with the
+          configured vector schema/index.
+        </p>
+
+        <div class="callout callout-info" style="margin-top: 16px;">
+          <strong>Conceptual Boundary — RAG / Knowledge vs. Memory Systems:</strong>
+          <p style="margin-top: 6px;">
+            While both RAG knowledge chunks and long-term memory may utilize PostgreSQL and pgvector storage
+            infrastructure, they represent fundamentally distinct conceptual data domains:
+          </p>
+          <ul style="margin-left: 20px; margin-top: 6px;">
+            <li><strong>RAG / Knowledge Base:</strong> Ingests external reference documents (PDFs, DOCX, TXT, corporate
+              factsheets, whitepapers) via chunking and vector embeddings to provide factual, source-grounded context
+              retrieval during research and drafting.</li>
+            <li><strong>Memory Subsystem:</strong> Manages internal organizational identity and operational context
+              (brand voice guidelines, verified company preferences, historical accepted topics/content patterns,
+              durable organizational preferences, and active conversation thread state).</li>
+            <li><strong>Domain Invariant:</strong> Not every vector embedding is "memory," and not every organizational
+              memory item must be a vector embedding. Vector search is an indexing mechanism; memory is durable
+              organizational state and conversational working context.</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- SECTION 9 -->
+      <section id="sec-9">
+        <h2>
+          9. Memory Architecture
+          <span class="tag-pill tag-arch">Architecture Decision</span>
+        </h2>
+        <p>
+          The platform enforces a strict separation between ephemeral session memory and durable organizational memory:
+        </p>
+
+        <div class="diagram-wrapper">
+          <span class="diagram-title">Visual 4: Dual-Tier Memory Architecture</span>
+          <svg viewBox="0 0 850 180" xmlns="http://www.w3.org/2000/svg">
+            <!-- Short Term Box -->
+            <rect x="30" y="20" width="360" height="135" rx="8" fill="#eef2ff" stroke="#4f46e5" stroke-width="1.5" />
+            <text x="210" y="48" font-size="12" font-weight="bold" fill="#312e81" text-anchor="middle">SHORT-TERM
+              WORKING MEMORY (Thread Scope)</text>
+            <text x="50" y="75" font-size="11" fill="#475569">• Today's Chat state &amp; Editor prompts</text>
+            <text x="50" y="95" font-size="11" fill="#475569">• Active draft text &amp; heading modifications</text>
+            <text x="50" y="115" font-size="11" fill="#475569">• In-session Reviewer feedback &amp; voice notes</text>
+            <text x="50" y="135" font-size="10.5" fill="#6d28d9" font-weight="bold">Persisted in: LangGraph Checkpoint
+              Store</text>
+
+            <!-- Gate in the middle -->
+            <line x1="390" y1="87" x2="450" y2="87" stroke="#64748b" stroke-width="2" marker-end="url(#mem-arr)" />
+            <text x="420" y="75" font-size="9" fill="#94a3b8" text-anchor="middle" font-weight="bold">Explicit
+              Gate</text>
+
+            <!-- Long Term Box -->
+            <rect x="450" y="20" width="370" height="135" rx="8" fill="#ecfdf5" stroke="#10b981" stroke-width="1.5" />
+            <text x="635" y="48" font-size="12" font-weight="bold" fill="#065f46" text-anchor="middle">LONG-TERM
+              ORGANIZATIONAL MEMORY (Company Scope)</text>
+            <text x="470" y="75" font-size="11" fill="#475569">• Verified brand identity &amp; guidelines</text>
+            <text x="470" y="95" font-size="11" fill="#475569">• Historical accepted blog topics &amp; URLs</text>
+            <text x="470" y="115" font-size="11" fill="#475569">• Curated corporate factsheets &amp; whitepapers</text>
+            <text x="470" y="135" font-size="10.5" fill="#047857" font-weight="bold">Persisted in: PostgreSQL Relational
+              / pgvector Tables</text>
+
+            <defs>
+              <marker id="mem-arr" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6"
+                orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#64748b" />
+              </marker>
+            </defs>
+          </svg>
+        </div>
+
+        <div class="callout callout-warning">
+          <strong>Reviewer Feedback Non-Auto-Persistence:</strong>
+          Feedback provided during a "Need Improvement" cycle belongs exclusively to Short-Term Thread Memory.
+          It does NOT automatically mutate Long-Term Company Memory. Long-term updates require deliberate Admin/Editor
+          configuration.
+        </div>
+      </section>
+
+      <!-- SECTION 10 -->
+      <section id="sec-10">
+        <h2>
+          10. Social Intelligence Ingestion Architecture
+          <span class="tag-pill tag-arch">Architecture Decision</span>
+        </h2>
+        <p>
+          Social media signals, public company mentions, and external industry trends are treated as a distinct,
+          transient intelligence stream.
+          Unlike static corporate knowledge documents, external trend intelligence exhibits high volatility and rapid
+          temporal decay.
+          The planned architecture specifies a staged, tenant-isolated ingestion pipeline:
+        </p>
+
+        <div class="diagram-wrapper">
+          <span class="diagram-title">Diagram: 8-Stage Social Intelligence &amp; Trend Pipeline Flow</span>
+          <svg viewBox="0 0 960 130" xmlns="http://www.w3.org/2000/svg">
+            <!-- Step 1 -->
+            <rect x="10" y="25" width="95" height="75" rx="6" fill="#f8fafc" stroke="#64748b" stroke-width="1.5" />
+            <text x="57" y="52" font-size="10.5" font-weight="bold" fill="#1e293b" text-anchor="middle">1.
+              External</text>
+            <text x="57" y="68" font-size="10.5" font-weight="bold" fill="#1e293b" text-anchor="middle">Sources</text>
+            <text x="57" y="85" font-size="8.5" fill="#64748b" text-anchor="middle">Web &amp; Feeds</text>
+
+            <line x1="105" y1="62" x2="128" y2="62" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#soc-arr)" />
+
+            <!-- Step 2 -->
+            <rect x="128" y="25" width="95" height="75" rx="6" fill="#eff6ff" stroke="#3b82f6" stroke-width="1.5" />
+            <text x="175" y="52" font-size="10.5" font-weight="bold" fill="#1d4ed8" text-anchor="middle">2. Ingestion
+              /</text>
+            <text x="175" y="68" font-size="10.5" font-weight="bold" fill="#1d4ed8"
+              text-anchor="middle">Connector</text>
+            <text x="175" y="85" font-size="8.5" fill="#64748b" text-anchor="middle">Async Poller</text>
+
+            <line x1="223" y1="62" x2="246" y2="62" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#soc-arr)" />
+
+            <!-- Step 3 -->
+            <rect x="246" y="25" width="95" height="75" rx="6" fill="#fdf4ff" stroke="#c084fc" stroke-width="1.5" />
+            <text x="293" y="52" font-size="10.5" font-weight="bold" fill="#7e22ce" text-anchor="middle">3.
+              Source</text>
+            <text x="293" y="68" font-size="10.5" font-weight="bold" fill="#7e22ce"
+              text-anchor="middle">Provenance</text>
+            <text x="293" y="85" font-size="8.5" fill="#64748b" text-anchor="middle">Metadata Tag</text>
+
+            <line x1="341" y1="62" x2="364" y2="62" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#soc-arr)" />
+
+            <!-- Step 4 -->
+            <rect x="364" y="25" width="95" height="75" rx="6" fill="#ecfdf5" stroke="#10b981" stroke-width="1.5" />
+            <text x="411" y="52" font-size="10.5" font-weight="bold" fill="#065f46" text-anchor="middle">4.
+              Tenant</text>
+            <text x="411" y="68" font-size="10.5" font-weight="bold" fill="#065f46" text-anchor="middle">Storage</text>
+            <text x="411" y="85" font-size="8.5" fill="#047857" text-anchor="middle">company_id</text>
+
+            <line x1="459" y1="62" x2="482" y2="62" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#soc-arr)" />
+
+            <!-- Step 5 -->
+            <rect x="482" y="25" width="95" height="75" rx="6" fill="#fffbeb" stroke="#f59e0b" stroke-width="1.5" />
+            <text x="529" y="52" font-size="10.5" font-weight="bold" fill="#92400e" text-anchor="middle">5.
+              Freshness</text>
+            <text x="529" y="68" font-size="10.5" font-weight="bold" fill="#92400e"
+              text-anchor="middle">Evaluation</text>
+            <text x="529" y="85" font-size="8.5" fill="#b45309" text-anchor="middle">Time Decay</text>
+
+            <line x1="577" y1="62" x2="600" y2="62" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#soc-arr)" />
+
+            <!-- Step 6 -->
+            <rect x="600" y="25" width="95" height="75" rx="6" fill="#f0fdfa" stroke="#14b8a6" stroke-width="1.5" />
+            <text x="647" y="52" font-size="10.5" font-weight="bold" fill="#0f766e" text-anchor="middle">6.
+              Similarity</text>
+            <text x="647" y="68" font-size="10.5" font-weight="bold" fill="#0f766e"
+              text-anchor="middle">Retrieval</text>
+            <text x="647" y="85" font-size="8.5" fill="#0d9488" text-anchor="middle">Audience Match</text>
+
+            <line x1="695" y1="62" x2="718" y2="62" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#soc-arr)" />
+
+            <!-- Step 7 -->
+            <rect x="718" y="25" width="95" height="75" rx="6" fill="#ede9fe" stroke="#8b5cf6" stroke-width="1.5" />
+            <text x="765" y="52" font-size="10.5" font-weight="bold" fill="#5b21b6" text-anchor="middle">7. Topic</text>
+            <text x="765" y="68" font-size="10.5" font-weight="bold" fill="#5b21b6"
+              text-anchor="middle">Intelligence</text>
+            <text x="765" y="85" font-size="8.5" fill="#6d28d9" text-anchor="middle">Ideation Feed</text>
+
+            <line x1="813" y1="62" x2="836" y2="62" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#soc-arr)" />
+
+            <!-- Step 8 -->
+            <rect x="836" y="25" width="112" height="75" rx="6" fill="#312e81" stroke="#4f46e5" stroke-width="1.5" />
+            <text x="892" y="52" font-size="10.5" font-weight="bold" fill="#ffffff" text-anchor="middle">8. AI
+              Blog</text>
+            <text x="892" y="68" font-size="10.5" font-weight="bold" fill="#ffffff"
+              text-anchor="middle">Generation</text>
+            <text x="892" y="85" font-size="8.5" fill="#c7d2fe" text-anchor="middle">LangGraph Loop</text>
+
+            <defs>
+              <marker id="soc-arr" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6"
+                orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#94a3b8" />
+              </marker>
+            </defs>
+          </svg>
+        </div>
+
+        <div class="card-grid">
+          <div class="card primary-border">
+            <h4>Structured Record Provenance &amp; Retention Schema</h4>
+            <p>
+              Every external intelligence record persisted into <code>company_social_insights</code> conceptually
+              retains seven mandatory attributes:
+            </p>
+            <ul style="margin-left: 20px; margin-top: 8px;">
+              <li><strong>source:</strong> Originating platform or channel classification.</li>
+              <li><strong>source_url:</strong> Canonical external URL where available for audit and citation.</li>
+              <li><strong>retrieval_timestamp:</strong> Exact UTC timestamp when the snippet was captured.</li>
+              <li><strong>author_source_identity:</strong> Public author, publisher, or account handle where available.
+              </li>
+              <li><strong>freshness:</strong> Dynamically computed decay score discounting aging trends.</li>
+              <li><strong>tenant_company_id:</strong> Foreign key binding record strictly to the owning enterprise
+                (<code>company_id</code>).</li>
+              <li><strong>confidence_relevance_metadata:</strong> JSONB payload containing semantic match scores and
+                industry tags.</li>
+            </ul>
+          </div>
+          <div class="card warning-border">
+            <h4>Strict Isolation &amp; Memory Non-Pollution Mandate</h4>
+            <p>
+              External trend snippets are persisted exclusively into tenant-partitioned storage
+              (<code>company_social_insights</code>).
+            </p>
+            <div class="callout callout-danger" style="margin-top: 10px;">
+              <strong>Critical Architectural Invariant:</strong>
+              <strong>External social/trend information is NOT automatically promoted into durable company
+                memory.</strong>
+              This prevents unverified external trend noise, transient market rumors, or competitive statements from
+              polluting permanent company brand voice, guidelines, or factual company knowledge. Promotion into durable
+              memory requires explicit human administrative validation.
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-info" style="margin-top: 14px;">
+          <strong>Architectural Boundary — Planned vs. Implemented:</strong>
+          Social intelligence ingestion represents an architectural integration capability designed to feed LangGraph's
+          Topic Ideation and Research nodes.
+          Specific third-party social media provider APIs are planned future connectors; the core platform enforces the
+          ingestion schema, provenance validation, freshness scoring, and tenant quarantine rules.
+        </div>
+      </section>
+
+      <!-- SECTION 11 -->
+      <section id="sec-11">
+        <h2>
+          11. LangGraph AI Orchestration
+          <span class="tag-pill tag-target">[ARCHITECTURE / DESIGN]</span>
+        </h2>
+        <div class="callout callout-info" style="margin-bottom: 16px;">
+          <strong>Target Architecture vs. Implementation Infrastructure:</strong>
+          LangGraph is the specified target stateful AI workflow orchestrator for DailyBlog AI.
+          While supporting backend foundations (company AI context models, knowledge tables, blog draft records, chat
+          persistence, review governance, and mocked publishing dispatch) were established during backend development
+          phases, full runtime LangGraph graph execution with persistent checkpoint interrupts represents the target AI
+          orchestration architecture.
+        </div>
+        <p>
+          The target architecture specifies <strong>LangGraph</strong> as its stateful workflow orchestrator.
+          The proposed workflow models the complete daily blog lifecycle as a directed cyclic graph with checkpointed
+          Human-in-the-Loop interrupts:
+        </p>
+
+        <div class="diagram-wrapper">
+          <span class="diagram-title">Visual 5: Complete LangGraph Stateful Orchestration Workflow</span>
+          <svg viewBox="0 0 960 380" xmlns="http://www.w3.org/2000/svg">
+            <!-- Start Node -->
+            <circle cx="60" cy="90" r="28" fill="#312e81" stroke="#4f46e5" stroke-width="2" />
+            <text x="60" y="95" fill="#ffffff" font-size="11" font-weight="bold" text-anchor="middle">START</text>
+
+            <line x1="88" y1="90" x2="130" y2="90" stroke="#64748b" stroke-width="2" marker-end="url(#lg-arr)" />
+
+            <!-- Topic Ideation Node -->
+            <rect x="130" y="60" width="130" height="60" rx="8" fill="#eef2ff" stroke="#4f46e5" />
+            <text x="195" y="85" font-size="11" font-weight="bold" fill="#312e81" text-anchor="middle">Topic
+              Ideation</text>
+            <text x="195" y="103" font-size="9" fill="#475569" text-anchor="middle">3-5 proposals</text>
+
+            <line x1="260" y1="90" x2="300" y2="90" stroke="#64748b" stroke-width="2" marker-end="url(#lg-arr)" />
+
+            <!-- Human Topic Selection (Interrupt) -->
+            <polygon points="360,60 420,90 360,120 300,90" fill="#fef3c7" stroke="#f59e0b" stroke-width="1.5" />
+            <text x="360" y="88" font-size="10" font-weight="bold" fill="#92400e" text-anchor="middle">Editor
+              Choice</text>
+            <text x="360" y="102" font-size="8" fill="#92400e" text-anchor="middle">[HITL Gate 1]</text>
+
+            <line x1="420" y1="90" x2="460" y2="90" stroke="#64748b" stroke-width="2" marker-end="url(#lg-arr)" />
+
+            <!-- Research / RAG Node -->
+            <rect x="460" y="60" width="120" height="60" rx="8" fill="#e0f2fe" stroke="#0ea5e9" />
+            <text x="520" y="85" font-size="11" font-weight="bold" fill="#0369a1" text-anchor="middle">RAG
+              Retrieval</text>
+            <text x="520" y="103" font-size="9" fill="#475569" text-anchor="middle">Company Docs</text>
+
+            <line x1="580" y1="90" x2="620" y2="90" stroke="#64748b" stroke-width="2" marker-end="url(#lg-arr)" />
+
+            <!-- Drafting Node -->
+            <rect x="620" y="60" width="130" height="60" rx="8" fill="#ede9fe" stroke="#8b5cf6" />
+            <text x="685" y="85" font-size="11" font-weight="bold" fill="#5b21b6" text-anchor="middle">Deep
+              Drafting</text>
+            <text x="685" y="103" font-size="9" fill="#475569" text-anchor="middle">Brand prose &amp; SEO</text>
+
+            <line x1="750" y1="90" x2="790" y2="90" stroke="#64748b" stroke-width="2" marker-end="url(#lg-arr)" />
+
+            <!-- Validation Node -->
+            <rect x="790" y="60" width="135" height="60" rx="8" fill="#ecfdf5" stroke="#10b981" />
+            <text x="857" y="85" font-size="11" font-weight="bold" fill="#065f46" text-anchor="middle">Format &amp; SEO
+              Check</text>
+            <text x="857" y="103" font-size="9" fill="#475569" text-anchor="middle">Deterministic test</text>
+
+            <!-- To 15m Control Window -->
+            <line x1="857" y1="120" x2="857" y2="170" stroke="#64748b" stroke-width="2" marker-end="url(#lg-arr)" />
+
+            <!-- 15-Minute Control Window Node -->
+            <rect x="760" y="170" width="190" height="65" rx="8" fill="#fffbeb" stroke="#f59e0b" stroke-width="1.5" />
+            <text x="855" y="195" font-size="11" font-weight="bold" fill="#92400e" text-anchor="middle">15-Min Control
+              Window</text>
+            <text x="855" y="213" font-size="9" fill="#475569" text-anchor="middle">Edit Mode vs Auto-Send</text>
+
+            <!-- Flow to Reviewer Gate -->
+            <line x1="760" y1="202" x2="680" y2="202" stroke="#64748b" stroke-width="2" marker-end="url(#lg-arr)" />
+
+            <!-- Reviewer Decision Node (HITL Gate 2) -->
+            <polygon points="610,170 680,202 610,235 540,202" fill="#eff6ff" stroke="#3b82f6" stroke-width="1.5" />
+            <text x="610" y="198" font-size="10.5" font-weight="bold" fill="#1e40af" text-anchor="middle">Reviewer
+              Gate</text>
+            <text x="610" y="212" font-size="8.5" fill="#1e40af" text-anchor="middle">[HITL Gate 2]</text>
+
+            <!-- Branch A: Need Improvement (Loop back to Edit Mode in same thread) -->
+            <line x1="610" y1="235" x2="610" y2="300" stroke="#ef4444" stroke-width="1.5" />
+            <line x1="610" y1="300" x2="855" y2="300" stroke="#ef4444" stroke-width="1.5" />
+            <line x1="855" y1="300" x2="855" y2="235" stroke="#ef4444" stroke-width="1.5"
+              marker-end="url(#lg-arr-red)" />
+            <text x="732" y="292" font-size="9.5" fill="#ef4444" font-weight="bold">Need Improvement Loop (Same
+              Thread)</text>
+
+            <!-- Branch B: Reschedule -->
+            <line x1="540" y1="202" x2="430" y2="202" stroke="#f59e0b" stroke-width="1.5" marker-end="url(#lg-arr)" />
+            <rect x="310" y="180" width="120" height="45" rx="6" fill="#fffbeb" stroke="#f59e0b" />
+            <text x="370" y="200" font-size="10" font-weight="bold" fill="#92400e"
+              text-anchor="middle">Reschedule</text>
+            <text x="370" y="214" font-size="8.5" fill="#475569" text-anchor="middle">Override Target</text>
+
+            <!-- Branch C: Approve -> Dispatch -->
+            <line x1="540" y1="215" x2="480" y2="270" stroke="#10b981" stroke-width="2"
+              marker-end="url(#lg-arr-green)" />
+            <rect x="390" y="270" width="160" height="55" rx="8" fill="#ecfdf5" stroke="#10b981" />
+            <text x="470" y="293" font-size="11" font-weight="bold" fill="#065f46" text-anchor="middle">WordPress
+              Dispatch</text>
+            <text x="470" y="310" font-size="9" fill="#475569" text-anchor="middle">Application Passwords</text>
+
+            <line x1="390" y1="297" x2="310" y2="297" stroke="#10b981" stroke-width="2"
+              marker-end="url(#lg-arr-green)" />
+
+            <!-- Success / End Node -->
+            <circle cx="270" cy="297" r="28" fill="#10b981" stroke="#059669" stroke-width="2" />
+            <text x="270" y="302" fill="#ffffff" font-size="10" font-weight="bold" text-anchor="middle">SUCCESS</text>
+
+            <!-- Loop back to Next Cycle -->
+            <path d="M 242 297 Q 60 297 60 118" fill="none" stroke="#10b981" stroke-width="1.5" stroke-dasharray="4"
+              marker-end="url(#lg-arr-green)" />
+            <text x="120" y="250" font-size="9" fill="#10b981" font-weight="bold">Next Daily Cycle</text>
+
+            <defs>
+              <marker id="lg-arr" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6"
+                orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#64748b" />
+              </marker>
+              <marker id="lg-arr-red" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6"
+                orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#ef4444" />
+              </marker>
+              <marker id="lg-arr-green" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6"
+                orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#10b981" />
+              </marker>
+            </defs>
+          </svg>
+        </div>
+      </section>
+
+      <!-- SECTION 11.1 (PROMPT ARCHITECTURE & CONTRACTS) -->
+      <section id="sec-prompt-contracts">
+        <h2>
+          11.1 AI Prompt Architecture &amp; Prompt Contracts
+          <span class="tag-pill tag-target">[ARCHITECTURE / DESIGN]</span>
+        </h2>
+        <p>
+          To ensure deterministic, brand-aligned, and hallucination-resistant content generation, the AI orchestration
+          engine assembles prompts from controlled, strictly ordered context layers.
+          Prompts are never raw user queries; they are programmatically synthesized prompt contracts compiled from
+          verified organizational data, retrieved knowledge, and editorial constraints.
+        </p>
+
+        <div class="callout callout-info" style="margin-bottom: 20px;">
+          <strong>Prompt Strategy Principles:</strong>
+          <ul style="margin-left: 20px; margin-top: 6px;">
+            <li><strong>Layered Assembly:</strong> Prompts are assembled hierarchically from highest-authority system
+              constraints down to task-specific user instructions.</li>
+            <li><strong>Tenant Boundary Grounding:</strong> Only company-approved context and tenant-scoped retrieved
+              chunks are injected; no cross-tenant knowledge is ever accessible.</li>
+            <li><strong>Anti-Hallucination Guardrails:</strong> The model is explicitly constrained from fabricating
+              unsupported company claims, pricing, or product features.</li>
+            <li><strong>Structured Output Enforcement:</strong> All generation nodes require strictly typed
+              Pydantic-compatible JSON or AST-parsable markdown conforming to schema contracts.</li>
+          </ul>
+        </div>
+
+        <div class="diagram-wrapper">
+          <span class="diagram-title">Visual 5B: Hierarchical Prompt Context Assembly Architecture</span>
+          <svg viewBox="0 0 850 320" xmlns="http://www.w3.org/2000/svg">
+            <!-- Hierarchy Stack -->
+            <rect x="180" y="10" width="490" height="28" rx="4" fill="#0f172a" stroke="#475569" />
+            <text x="425" y="28" font-size="11" fill="#f8fafc" font-weight="bold" text-anchor="middle">1. SYSTEM
+              INSTRUCTIONS (Role, boundaries, anti-hallucination, output rules)</text>
+
+            <line x1="425" y1="38" x2="425" y2="48" stroke="#64748b" stroke-width="1.5" marker-end="url(#pa-arr)" />
+
+            <rect x="180" y="48" width="490" height="28" rx="4" fill="#1e1b4b" stroke="#4338ca" />
+            <text x="425" y="66" font-size="11" fill="#e0e7ff" font-weight="bold" text-anchor="middle">2. COMPANY
+              CONTEXT (Identity, brand voice, products, audience, goals)</text>
+
+            <line x1="425" y1="76" x2="425" y2="86" stroke="#64748b" stroke-width="1.5" marker-end="url(#pa-arr)" />
+
+            <rect x="180" y="86" width="490" height="28" rx="4" fill="#064e3b" stroke="#059669" />
+            <text x="425" y="104" font-size="11" fill="#ecfdf5" font-weight="bold" text-anchor="middle">3. RETRIEVED
+              KNOWLEDGE (Tenant-scoped RAG chunks, citations, whitepapers)</text>
+
+            <line x1="425" y1="114" x2="425" y2="124" stroke="#64748b" stroke-width="1.5" marker-end="url(#pa-arr)" />
+
+            <rect x="180" y="124" width="490" height="28" rx="4" fill="#312e81" stroke="#6366f1" />
+            <text x="425" y="142" font-size="11" fill="#e0e7ff" font-weight="bold" text-anchor="middle">4. CURRENT BLOG
+              STATE (Topic, working draft, thread context, editor history)</text>
+
+            <line x1="425" y1="152" x2="425" y2="162" stroke="#64748b" stroke-width="1.5" marker-end="url(#pa-arr)" />
+
+            <rect x="180" y="162" width="490" height="28" rx="4" fill="#1e293b" stroke="#0ea5e9" />
+            <text x="425" y="180" font-size="11" fill="#e0f2fe" font-weight="bold" text-anchor="middle">5. BLOG FORMAT
+              CONTRACT (Baseline schema, Level 2 company, Level 3 override)</text>
+
+            <line x1="425" y1="190" x2="425" y2="200" stroke="#64748b" stroke-width="1.5" marker-end="url(#pa-arr)" />
+
+            <rect x="180" y="200" width="490" height="28" rx="4" fill="#701a75" stroke="#d946ef" />
+            <text x="425" y="218" font-size="11" fill="#fdf4ff" font-weight="bold" text-anchor="middle">6. SEO CONTRACT
+              (Target keywords, character lengths, heading hierarchy)</text>
+
+            <line x1="425" y1="228" x2="425" y2="238" stroke="#64748b" stroke-width="1.5" marker-end="url(#pa-arr)" />
+
+            <rect x="180" y="238" width="490" height="28" rx="4" fill="#78350f" stroke="#f59e0b" />
+            <text x="425" y="256" font-size="11" fill="#fef3c7" font-weight="bold" text-anchor="middle">7. EDITOR /
+              REVIEWER INSTRUCTIONS (Current prompt, feedback comments)</text>
+
+            <line x1="425" y1="266" x2="425" y2="276" stroke="#64748b" stroke-width="1.5" marker-end="url(#pa-arr)" />
+
+            <rect x="180" y="276" width="490" height="32" rx="4" fill="#047857" stroke="#10b981" />
+            <text x="425" y="296" font-size="11.5" fill="#ffffff" font-weight="bold" text-anchor="middle">8. OUTPUT
+              CONTRACT (Typed JSON / markdown ready for AST validation)</text>
+
+            <defs>
+              <marker id="pa-arr" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6"
+                orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#64748b" />
+              </marker>
+            </defs>
+          </svg>
+        </div>
+
+        <div class="table-container" style="margin-top: 16px;">
+          <h4 style="margin-bottom: 12px; color: var(--slate-800);">Controlled Context Layers &amp; Architectural
+            Responsibilities</h4>
+          <table>
+            <thead>
+              <tr>
+                <th>Layer</th>
+                <th>Source &amp; Scope</th>
+                <th>Contents &amp; Injected Attributes</th>
+                <th>Architectural Invariants &amp; Guardrails</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>1. SYSTEM INSTRUCTIONS</strong></td>
+                <td>Immutable Code</td>
+                <td>Role of the model, task boundaries, structural compliance directives, forbidden behaviors.</td>
+                <td>Absolute authority. Strictly forbids fabricating company facts; forces output to follow typed
+                  schemas.</td>
+              </tr>
+              <tr>
+                <td><strong>2. COMPANY CONTEXT</strong></td>
+                <td><code>company_ai_profiles</code></td>
+                <td>Company identity, industry, offerings, audience personas, brand voice parameters, marketing goals,
+                  promotional rules, guidelines, upcoming projects, and partner companies.</td>
+                <td>Tenant-scoped. Injected from verified database records. Must not be mutated by chat prompts.</td>
+              </tr>
+              <tr>
+                <td><strong>3. RETRIEVED KNOWLEDGE</strong></td>
+                <td><code>knowledge_chunks</code> (pgvector)</td>
+                <td>Tenant-scoped similarity search chunks with source document title, page metadata, and relevance
+                  score.</td>
+                <td>Factual grounding. The model may only state corporate factual details that appear in retrieved
+                  chunks or company context.</td>
+              </tr>
+              <tr>
+                <td><strong>4. CURRENT BLOG STATE</strong></td>
+                <td><code>blogs</code> &amp; <code>blog_chat_threads</code></td>
+                <td>Selected topic, current draft text, conversation history, previous editor changes, and reviewer
+                  feedback payload.</td>
+                <td>Thread continuity. Preserves working context across revisions within the single active cycle.</td>
+              </tr>
+              <tr>
+                <td><strong>5. BLOG FORMAT CONTRACT</strong></td>
+                <td><code>blog_formats</code> &amp; overrides</td>
+                <td>Effective structural schema: Level 1 baseline (Title, Intro, H2/H3 sections, Conclusion), Level 2
+                  company global format, and Level 3 current override.</td>
+                <td>Structural blueprint. All generated content must populate required headings and structural sections.
+                </td>
+              </tr>
+              <tr>
+                <td><strong>6. SEO CONTRACT</strong></td>
+                <td>Format schema / PRD targets</td>
+                <td>SEO page title (55–60 chars), meta description (140–160 chars), primary keyword, heading hierarchy
+                  rules.</td>
+                <td>Measurable SEO targets. Directly evaluated by downstream deterministic validation node.</td>
+              </tr>
+              <tr>
+                <td><strong>7. EDITOR / REVIEWER INSTRUCTIONS</strong></td>
+                <td>User interaction payload</td>
+                <td>Current prompt, specific section adjustment instructions, or Reviewer "Need Improvement" feedback
+                  notes.</td>
+                <td>Task directive. Guides the current generation or revision cycle without overriding system
+                  constraints.</td>
+              </tr>
+              <tr>
+                <td><strong>8. OUTPUT CONTRACT</strong></td>
+                <td>Pydantic output schema</td>
+                <td>Structured blog object: title, meta_description, primary_keyword, sections (heading, body, level),
+                  cta.</td>
+                <td>Deterministic parsing. Malformed outputs trigger automated re-prompt repair cycles.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div style="margin-top: 24px;">
+          <h4 style="color: var(--slate-900); margin-bottom: 12px;">Sample Prompt Contracts — Architecture Specification
+          </h4>
+          <p style="font-size: 13.5px; color: var(--slate-600); margin-bottom: 16px;">
+            The following prompt contracts specify the exact prompt engineering structure used across the three primary
+            AI workflow stages.
+            <em>(Architecture specification; represents target design rather than claimed production telemetry.)</em>
+          </p>
+
+          <!-- Prompt A: Topic Ideation -->
+          <div class="card primary-border" style="margin-bottom: 16px;">
+            <h4 style="display: flex; justify-content: space-between; align-items: center; color: var(--primary-dark);">
+              <span>A. Topic Ideation Prompt Contract</span>
+              <span class="tag-pill tag-target">Stage: Ideation</span>
+            </h4>
+            <pre
+              style="background: var(--slate-900); color: #f8fafc; padding: 16px; border-radius: 6px; font-size: 12px; line-height: 1.5; overflow-x: auto;"><code>ROLE:
+You are the Topic Ideation Engine for DailyBlog AI, an enterprise-grade automated content system.
+
+CONTEXT:
+Company Identity: {{company.name}} | Industry: {{company.industry}}
+Brand Voice &amp; Tone: {{company_ai_profile.brand_voice}}
+Target Audience: {{company_ai_profile.target_audience}}
+Core Products/Services: {{company_ai_profile.products_services}}
+Marketing Goals: {{company_ai_profile.marketing_goals}}
+Rolling 30-Day Topic History: {{recent_blog_topics}}
+Retrieved Knowledge Signals: {{retrieved_knowledge_snippets}}
+
+TASK:
+Generate exactly 3 to 5 distinct, highly relevant, and engaging blog topic proposals aligned with company goals and audience intent.
+
+CONSTRAINTS:
+1. Do not invent company offerings, capabilities, or partnerships not present in CONTEXT.
+2. Avoid topics covered in the Rolling 30-Day Topic History.
+3. Every proposal must include target audience intent, a primary SEO keyword, and a concrete strategic rationale.
+4. Output must strictly conform to the required JSON schema.
+
+OUTPUT SCHEMA:
+{
+  "proposals": [
+    {
+      "topic": "string",
+      "rationale": "string",
+      "primary_keyword": "string",
+      "audience_intent": "string",
+      "source_context_anchor": "string"
+    }
+  ]
+}</code></pre>
+          </div>
+
+          <!-- Prompt B: Blog Generation -->
+          <div class="card secondary-border" style="margin-bottom: 16px;">
+            <h4
+              style="display: flex; justify-content: space-between; align-items: center; color: var(--secondary-dark);">
+              <span>B. Initial Blog Generation Prompt Contract</span>
+              <span class="tag-pill tag-target">Stage: Drafting</span>
+            </h4>
+            <pre
+              style="background: var(--slate-900); color: #f8fafc; padding: 16px; border-radius: 6px; font-size: 12px; line-height: 1.5; overflow-x: auto;"><code>ROLE:
+You are the Dedicated Blog Generation Engine for DailyBlog AI.
+
+CONTEXT:
+Company: {{company.name}} ({{company.industry}})
+Brand Voice &amp; Tone Guidelines: {{company_ai_profile.brand_voice}}
+Audience Persona: {{company_ai_profile.target_audience}}
+Selected Topic: {{selected_topic.title}}
+Primary Keyword: {{selected_topic.primary_keyword}}
+Factual Grounding (Tenant RAG Chunks):
+{{#each retrieved_chunks}}
+[Source: {{document_title}} | Page {{page}}]
+{{content}}
+{{/each}}
+
+FORMAT &amp; SEO CONTRACT:
+System Baseline: Single H1 title, Introduction, sequential H2/H3 headings, Conclusion with CTA.
+Company Global Format: {{company_format.structure_rules}}
+SEO Target: Title 55-60 chars | Meta description 140-160 chars | Primary keyword in Title, Intro, and &gt;=1 H2.
+
+TASK:
+Write a complete, highly engaging, factual, and publication-ready blog post for the selected topic.
+
+CONSTRAINTS:
+1. Follow the three-tier format hierarchy without skipping heading levels.
+2. Ground all technical/product claims strictly in Retrieved Knowledge; do not hallucinate unsupported company facts.
+3. Embed the primary keyword naturally in accordance with the SEO Contract.
+4. Maintain company brand voice throughout; avoid generic filler language.
+5. Return the result strictly conforming to the Structured Blog Output format.
+
+OUTPUT SCHEMA:
+{
+  "seo_title": "string (55-60 chars)",
+  "meta_description": "string (140-160 chars)",
+  "primary_keyword": "string",
+  "h1_title": "string",
+  "introduction": "string",
+  "sections": [
+    { "heading": "string", "level": 2, "content": "string" },
+    { "heading": "string", "level": 3, "content": "string" }
+  ],
+  "conclusion": "string",
+  "call_to_action": "string"
+}</code></pre>
+          </div>
+
+          <!-- Prompt C: Revision Prompt -->
+          <div class="card accent-border">
+            <h4 style="display: flex; justify-content: space-between; align-items: center; color: var(--accent);">
+              <span>C. Reviewer Feedback / Revision Prompt Contract</span>
+              <span class="tag-pill tag-target">Stage: Revision / Edit Mode</span>
+            </h4>
+            <pre
+              style="background: var(--slate-900); color: #f8fafc; padding: 16px; border-radius: 6px; font-size: 12px; line-height: 1.5; overflow-x: auto;"><code>ROLE:
+You are the Revision Engine for DailyBlog AI, executing targeted editorial refinements.
+
+CONTEXT:
+Company: {{company.name}} | Brand Voice: {{company_ai_profile.brand_voice}}
+Selected Topic: {{blog.title}}
+Current Blog Draft:
+{{current_blog_markdown}}
+
+REVISION DIRECTIVE:
+Editor Instructions: {{editor_instruction_text}}
+Reviewer "Need Improvement" Feedback: {{reviewer_feedback_payload}}
+Attached Reference Notes: {{optional_editor_attachment_text}}
+
+TASK:
+Revise the current blog draft to precisely satisfy the revision directives while preserving all approved, unaffected sections.
+
+CONSTRAINTS:
+1. Apply requested corrections surgically: do not rewrite sections that were not flagged for improvement.
+2. Address every explicit point raised in the Reviewer Feedback and Editor Instructions.
+3. Preserve the brand voice, core factual grounding, and existing SEO keyword placements.
+4. Maintain compliance with the three-tier blog format hierarchy and heading rules.
+5. Return the revised blog conforming strictly to the Structured Blog Output schema.
+
+OUTPUT SCHEMA:
+{
+  "revision_summary": "string describing changes applied",
+  "seo_title": "string",
+  "meta_description": "string",
+  "primary_keyword": "string",
+  "h1_title": "string",
+  "introduction": "string",
+  "sections": [
+    { "heading": "string", "level": 2, "content": "string" }
+  ],
+  "conclusion": "string",
+  "call_to_action": "string"
+}</code></pre>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 12 -->
+      <section id="sec-12">
+        <h2>
+          12. Blog Format Architecture
+          <span class="tag-pill tag-arch">Architecture Decision</span>
+        </h2>
+        <p>
+          The target architecture specifies the three-tier format hierarchy through declarative Pydantic schemas and
+          structural validation rules <span class="tag-pill tag-target">[ARCHITECTURE / DESIGN]</span>:
+        </p>
+
+        <div class="diagram-wrapper">
+          <span class="diagram-title">Visual 6: 3-Tier Format Hierarchy &amp; Deterministic Validation Engine</span>
+          <svg viewBox="0 0 850 170" xmlns="http://www.w3.org/2000/svg">
+            <!-- Level 1 -->
+            <rect x="30" y="30" width="220" height="90" rx="8" fill="#312e81" stroke="#4f46e5" stroke-width="1.5" />
+            <text x="140" y="55" fill="#ffffff" font-size="11" font-weight="bold" text-anchor="middle">LEVEL 1: System
+              Baseline</text>
+            <text x="140" y="75" fill="#c7d2fe" font-size="9.5" text-anchor="middle">Title, Intro, H2/H3, Body,
+              Concl</text>
+            <text x="140" y="93" fill="#c7d2fe" font-size="9.5" text-anchor="middle">SEO Title, Meta Desc,
+              Keywords</text>
+            <text x="140" y="110" fill="#38bdf8" font-size="9" font-weight="bold" text-anchor="middle">[Immutable Code
+              Schema]</text>
+
+            <line x1="250" y1="75" x2="310" y2="75" stroke="#94a3b8" stroke-width="2" marker-end="url(#fmt-arr)" />
+
+            <!-- Level 2 -->
+            <rect x="310" y="30" width="230" height="90" rx="8" fill="#1e293b" stroke="#0ea5e9" stroke-width="1.5" />
+            <text x="425" y="55" fill="#ffffff" font-size="11" font-weight="bold" text-anchor="middle">LEVEL 2: Company
+              Global</text>
+            <text x="425" y="75" fill="#cbd5e1" font-size="9.5" text-anchor="middle">Custom section layouts, CTAs</text>
+            <text x="425" y="93" fill="#cbd5e1" font-size="9.5" text-anchor="middle">Defined via Editor AI chat</text>
+            <text x="425" y="110" fill="#38bdf8" font-size="9" font-weight="bold" text-anchor="middle">[Versioned in
+              PostgreSQL]</text>
+
+            <line x1="540" y1="75" x2="600" y2="75" stroke="#94a3b8" stroke-width="2" marker-end="url(#fmt-arr)" />
+
+            <!-- Level 3 -->
+            <rect x="600" y="30" width="220" height="90" rx="8" fill="#0f172a" stroke="#8b5cf6" stroke-width="1.5" />
+            <text x="710" y="55" fill="#ffffff" font-size="11" font-weight="bold" text-anchor="middle">LEVEL 3: Current
+              Override</text>
+            <text x="710" y="75" fill="#cbd5e1" font-size="9.5" text-anchor="middle">One-off sections in Edit
+              Mode</text>
+            <text x="710" y="93" fill="#cbd5e1" font-size="9.5" text-anchor="middle">Applies ONLY to today's post</text>
+            <text x="710" y="110" fill="#a78bfa" font-size="7.5" font-weight="bold" text-anchor="middle">[Scoped to current blog via blog_format_overrides]</text>
+
+            <defs>
+              <marker id="fmt-arr" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6"
+                orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#94a3b8" />
+              </marker>
+            </defs>
+          </svg>
+        </div>
+
+        <p>
+          The proposed validation node parses the generated markdown/HTML structure and verifies:
+        </p>
+        <ul>
+          <li>Presence of exactly one top-level Title (H1).</li>
+          <li>Presence of Introduction, logical Heading hierarchy (no skipping from H2 to H4), and Conclusion.</li>
+          <li>Preservation of Level 2 template sections unless an explicit Level 3 override is detected.</li>
+          <li>Zero mutation of Level 2 records during single-blog revisions.</li>
+        </ul>
+      </section>
+
+      <!-- SECTION 13 -->
+      <section id="sec-13">
+        <h2>
+          13. SEO Pipeline &amp; Validation
+          <span class="tag-pill tag-arch">Architecture Decision</span>
+        </h2>
+        <p>
+          The SEO pipeline operates as a distinct deterministic validation node:
+        </p>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>SEO Metric / Tag</th>
+                <th>Evaluation Method</th>
+                <th>Target Threshold (Document 1 Product Target)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>SEO Page Title</strong></td>
+                <td>String length &amp; primary keyword check</td>
+                <td>55–60 characters (Product target)</td>
+              </tr>
+              <tr>
+                <td><strong>Meta Description</strong></td>
+                <td>String length &amp; brand CTA check</td>
+                <td>140–160 characters (Product target)</td>
+              </tr>
+              <tr>
+                <td><strong>Keyword Distribution</strong></td>
+                <td>Keyword frequency scan in Intro &amp; Headings</td>
+                <td>Primary keyword in Title, Intro, and &ge;1 H2</td>
+              </tr>
+              <tr>
+                <td><strong>Heading Semantics</strong></td>
+                <td>HTML tag hierarchy parser</td>
+                <td>Proper H1 &rarr; H2 &rarr; H3 nesting without orphaned subheadings</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- SECTION 14 -->
+      <section id="sec-14">
+        <h2>
+          14. Editor-AI Conversation Architecture
+          <span class="tag-pill tag-arch">Architecture Decision</span>
+        </h2>
+        <p>
+          The Editor-AI chat operates on a <strong>Single Continuous Thread Pattern</strong>:
+        </p>
+        <ul>
+          <li>A single row in <code>blog_chat_threads</code> anchors the entire daily cycle.</li>
+          <li>All events—topic proposals, selection, initial draft, Editor instructions, PDF attachments, Reviewer
+            feedback, and re-drafts—are serialized as ordered <code>blog_chat_messages</code>.</li>
+          <li>When Reviewer issues "Need Improvement", the feedback payload is appended to this existing thread,
+            allowing the LLM to access full context when the Editor asks for revisions.</li>
+        </ul>
+      </section>
+
+      <!-- SECTION 15 -->
+      <section id="sec-15">
+        <h2>
+          15. Editor 15-Minute State Machine
+          <span class="tag-pill tag-arch">Architecture Decision</span>
+        </h2>
+        <p>
+          The proposed 15-Minute Control Window state machine coordinates workflow handoff through scheduled countdown
+          tasks and short-lived active edit locks <span class="tag-pill tag-target">[ARCHITECTURE SPECIFICATION]</span>:
+        </p>
+
+        <div class="diagram-wrapper">
+          <span class="diagram-title">Visual 7: Editor 15-Minute Control Window &amp; Active Edit Lock State Machine
+            (Target State Machine — Architecture Specification)</span>
+          <svg viewBox="0 0 900 240" xmlns="http://www.w3.org/2000/svg">
+            <!-- State: DRAFT_READY -->
+            <rect x="30" y="80" width="160" height="70" rx="8" fill="#eef2ff" stroke="#4f46e5" stroke-width="2" />
+            <text x="110" y="110" font-size="12" font-weight="bold" fill="#312e81"
+              text-anchor="middle">DRAFT_READY</text>
+            <text x="110" y="130" font-size="10" fill="#4f46e5" text-anchor="middle">Celery timer: 900s</text>
+
+            <!-- Branch 1: Manual Submit -->
+            <line x1="190" y1="95" x2="310" y2="45" stroke="#10b981" stroke-width="2" marker-end="url(#sm-arr)" />
+            <rect x="310" y="20" width="220" height="50" rx="6" fill="#ecfdf5" stroke="#10b981" />
+            <text x="420" y="42" font-size="10.5" font-weight="bold" fill="#065f46" text-anchor="middle">POST
+              /api/v1/blogs/{id}/submit [Target API]</text>
+            <text x="420" y="58" font-size="9.5" fill="#047857" text-anchor="middle">Revokes timer, transitions to
+              REVIEW</text>
+
+            <!-- Branch 2: Open Edit Mode (Lock) -->
+            <line x1="190" y1="115" x2="310" y2="115" stroke="#8b5cf6" stroke-width="2" marker-end="url(#sm-arr)" />
+            <rect x="310" y="90" width="220" height="50" rx="6" fill="#f5f3ff" stroke="#8b5cf6" />
+            <text x="420" y="112" font-size="10.5" font-weight="bold" fill="#5b21b6" text-anchor="middle">POST
+              /api/v1/blogs/{id}/edit-mode [Target API]</text>
+            <text x="420" y="128" font-size="9.5" fill="#6d28d9" text-anchor="middle">Sets active_edit_lock in Redis
+              &amp; DB</text>
+
+            <!-- Branch 3: Timer Expiration -->
+            <line x1="190" y1="135" x2="310" y2="185" stroke="#f59e0b" stroke-width="2" stroke-dasharray="4"
+              marker-end="url(#sm-arr)" />
+            <rect x="310" y="160" width="220" height="50" rx="6" fill="#fffbeb" stroke="#f59e0b" />
+            <text x="420" y="182" font-size="11" font-weight="bold" fill="#92400e" text-anchor="middle">Celery Task
+              Fires (900s)</text>
+            <text x="420" y="198" font-size="9.5" fill="#b45309" text-anchor="middle">Checks active_edit_lock
+              flag</text>
+
+            <!-- Connections to Outcomes -->
+            <line x1="530" y1="45" x2="650" y2="95" stroke="#10b981" stroke-width="2" />
+            <line x1="530" y1="185" x2="650" y2="125" stroke="#f59e0b" stroke-width="2" />
+
+            <!-- Target Box -->
+            <rect x="650" y="85" width="210" height="60" rx="8" fill="#1e293b" stroke="#0ea5e9" stroke-width="2" />
+            <text x="755" y="112" font-size="12" font-weight="bold" fill="#ffffff"
+              text-anchor="middle">PENDING_REVIEW</text>
+            <text x="755" y="130" font-size="10" fill="#94a3b8" text-anchor="middle">Available in Reviewer Queue</text>
+
+            <defs>
+              <marker id="sm-arr" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6"
+                orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#64748b" />
+              </marker>
+            </defs>
+          </svg>
+        </div>
+
+        <div class="callout callout-info">
+          <strong>Lock Verification Logic:</strong> When the 900-second Celery task fires, it checks
+          <code>blog.is_active_edit</code>.
+          If true, the worker aborts automatic transition, logging:
+          <code>"Auto-handoff suppressed: Editor actively editing blog {id}"</code>.
+          The blog remains under Editor custody until explicit submission.
+        </div>
+      </section>
+
+      <!-- SECTION 16 -->
+      <section id="sec-16">
+        <h2>
+          16. Reviewer Workflow State Machine
+          <span class="tag-pill tag-decision">Product Decision</span>
+          <span class="tag-pill tag-arch">Architecture Decision</span>
+        </h2>
+        <p>
+          The Reviewer workflow enforces time-gated action availability based on server-side clock comparison against
+          the target publish time.
+        </p>
+        <div class="callout callout-info" style="margin-bottom: 16px;">
+          <strong>Time Window Classification:</strong> The specific time intervals (&gt;20m for Approve/Need
+          Improvement, 20–10m for Approve/Reject/Reschedule, 10–5m for Approve/Reject, 5–0m for Reject Only, and the
+          4:00 PM lock) are explicit <strong>[PRODUCT DECISION]</strong> parameters established in Document 1 to balance
+          editorial flexibility with technical publishing preparation buffer, rather than generic external assessment
+          requirements.
+        </div>
+
+        <div class="diagram-wrapper">
+          <span class="diagram-title">Visual 8: Server-Enforced Time-Gated Reviewer Decision Windows</span>
+          <svg viewBox="0 0 920 180" xmlns="http://www.w3.org/2000/svg">
+            <!-- Time Bar -->
+            <line x1="50" y1="80" x2="880" y2="80" stroke="#cbd5e1" stroke-width="4" />
+
+            <!-- Gate 1: > 20m before -->
+            <rect x="50" y="15" width="280" height="50" rx="6" fill="#ecfdf5" stroke="#10b981" />
+            <text x="190" y="36" font-size="10.5" font-weight="bold" fill="#065f46" text-anchor="middle">T &gt; 20m
+              before publish (Before 3:40 PM)</text>
+            <text x="190" y="52" font-size="9.5" fill="#047857" text-anchor="middle">Allowed: APPROVE,
+              NEED_IMPROVEMENT</text>
+            <circle cx="50" cy="80" r="6" fill="#10b981" />
+            <circle cx="330" cy="80" r="6" fill="#10b981" />
+            <text x="330" y="105" font-size="10" fill="#64748b" text-anchor="middle">T - 20m</text>
+
+            <!-- Gate 2: 20m to 10m before -->
+            <rect x="335" y="15" width="200" height="50" rx="6" fill="#eff6ff" stroke="#3b82f6" />
+            <text x="435" y="36" font-size="10.5" font-weight="bold" fill="#1d4ed8" text-anchor="middle">20m – 10m
+              before (3:40–3:50 PM)</text>
+            <text x="435" y="52" font-size="9" fill="#1e40af" text-anchor="middle">APPROVE, REJECT, RESCHEDULE</text>
+            <circle cx="535" cy="80" r="6" fill="#3b82f6" />
+            <text x="535" y="105" font-size="10" fill="#64748b" text-anchor="middle">T - 10m</text>
+
+            <!-- Gate 3: 10m to 5m before -->
+            <rect x="540" y="15" width="160" height="50" rx="6" fill="#fffbeb" stroke="#f59e0b" />
+            <text x="620" y="36" font-size="10.5" font-weight="bold" fill="#92400e" text-anchor="middle">10m – 5m before
+              (3:50–3:55 PM)</text>
+            <text x="620" y="52" font-size="9.5" fill="#b45309" text-anchor="middle">APPROVE, REJECT</text>
+            <circle cx="700" cy="80" r="6" fill="#f59e0b" />
+            <text x="700" y="105" font-size="10" fill="#64748b" text-anchor="middle">T - 5m</text>
+
+            <!-- Gate 4: 5m to 0m before -->
+            <rect x="705" y="15" width="105" height="50" rx="6" fill="#fef2f2" stroke="#ef4444" />
+            <text x="757" y="36" font-size="10" font-weight="bold" fill="#991b1b" text-anchor="middle">5m–0m
+              (3:55–4:00)</text>
+            <text x="757" y="52" font-size="8.5" fill="#b91c1c" text-anchor="middle">REJECT ONLY</text>
+            <circle cx="810" cy="80" r="6" fill="#ef4444" />
+            <text x="810" y="105" font-size="10" fill="#64748b" text-anchor="middle">T - 0m</text>
+
+            <!-- Gate 5: At Publish Time -->
+            <rect x="815" y="15" width="90" height="50" rx="6" fill="#0f172a" stroke="#000000" />
+            <text x="860" y="36" font-size="10" font-weight="bold" fill="#ffffff" text-anchor="middle">4:00 PM
+              LOCK</text>
+            <text x="860" y="52" font-size="8.5" fill="#94a3b8" text-anchor="middle">Publishing</text>
+          </svg>
+        </div>
+
+        <p>
+          The target backend review service is responsible for enforcing these rules dynamically at decision time. Requests received outside the permitted window should return HTTP 409 Conflict with an explicit error code such as <code>REVIEW_ACTION_WINDOW_EXPIRED</code>.
+        </p>
+      </section>
+
+      <!-- SECTION 17 -->
+      <section id="sec-17">
+        <h2>
+          17. Rescheduling &amp; Active Cycle Invariant Architecture
+          <span class="tag-pill tag-arch">Architecture Decision</span>
+        </h2>
+        <p>
+          Rescheduling provides a controlled, one-time target publishing timestamp override for the currently active
+          article while maintaining continuous workflow state:
+        </p>
+        <ul>
+          <li><strong>Separate Review Window vs. Cutoff:</strong> The reschedule decision is triggerable by the Reviewer
+            strictly within the 20–10m window before current target publish time. However, the requested new publishing
+            timestamp must be at least <strong>one hour before the next scheduled publishing slot</strong> (e.g., if
+            next regular slot is Tuesday 4:00 PM, current post can be rescheduled up to Tuesday 3:00 PM).</li>
+          <li><strong>Cycle Preservation:</strong> Rescheduling mutates the target publish timestamp (implementation
+            field: <code>blogs.scheduled_at</code>; architecture terminology: <code>target_publish_at</code>). It does
+            NOT spawn a new conversation or archive the current cycle. The same Editor-AI conversation thread continues
+            seamlessly.</li>
+          <li><strong>Active Cycle Invariant (0, 1, or 2+ Invariant Rule):</strong> The architecture strictly
+            distinguishes between three independent entity scopes:
+            <ol style="margin-left: 20px; margin-top: 6px;">
+              <li><em>Historical Blogs:</em> Any number of previously accepted, rejected, or published blog records
+                preserved durably in PostgreSQL for audit, analytics, and content referencing.</li>
+              <li><em>Current Active Blog Cycle:</em> <strong>AT MOST ONE ACTIVE BLOG CYCLE PER COMPANY</strong>:
+                <br>• <strong>0 active cycles = valid</strong> (system is idle, between scheduled publication slots).
+                <br>• <strong>1 active cycle = valid</strong> (a single blog post is actively in ideation, drafting,
+                review, or dispatch).
+                <br>• <strong>2+ active cycles = strictly invalid</strong> (prevented by strict concurrency controls).
+              </li>
+              <li><em>Future Publishing Schedule Definitions:</em> The master recurring weekly timetable (Monday–Sunday)
+                managed by the Reviewer.</li>
+            </ol>
+          </li>
+          <li><strong>Transactional Concurrency Enforcement:</strong> The at-most-one active cycle invariant is
+            guaranteed through database concurrency controls, including database transaction isolation,
+            conditional/partial uniqueness enforcement (such as a partial index on non-terminal blog statuses per
+            company), row-level locking during cycle initiation, and atomic state transitions. Subsequent daily cycles
+            are blocked from initializing until the current active cycle reaches a terminal resolution (successful
+            publication or explicit rejection).</li>
+        </ul>
+      </section>
+
+      <!-- SECTION 18 -->
+      <section id="sec-18">
+        <h2>
+          18. Scheduling &amp; Background Jobs
+          <span class="tag-pill tag-arch">Architecture Decision</span>
+        </h2>
+        <p>
+          Scheduling coordinates the recurring weekly timetable with Celery worker execution:
+        </p>
+
+        <div class="diagram-wrapper">
+          <span class="diagram-title">Visual 9: Scheduling &amp; Celery Beat Execution Architecture</span>
+          <svg viewBox="0 0 850 160" xmlns="http://www.w3.org/2000/svg">
+            <!-- DB Table -->
+            <rect x="20" y="30" width="180" height="85" rx="6" fill="#ecfdf5" stroke="#10b981" stroke-width="1.5" />
+            <text x="110" y="55" font-size="11" font-weight="bold" fill="#065f46" text-anchor="middle">PostgreSQL
+              Database</text>
+            <text x="110" y="75" font-size="10" fill="#475569" text-anchor="middle">publishing_schedules</text>
+            <text x="110" y="95" font-size="9" fill="#047857" text-anchor="middle">Source of Truth (Mon-Sun)</text>
+
+            <line x1="200" y1="72" x2="260" y2="72" stroke="#64748b" stroke-width="2" marker-end="url(#sch-arr)" />
+
+            <!-- Celery Beat -->
+            <rect x="260" y="30" width="170" height="85" rx="6" fill="#fffbeb" stroke="#f59e0b" stroke-width="1.5" />
+            <text x="345" y="55" font-size="11" font-weight="bold" fill="#92400e" text-anchor="middle">Celery Beat
+              Daemon</text>
+            <text x="345" y="75" font-size="10" fill="#475569" text-anchor="middle">Periodic Poller (60s)</text>
+            <text x="345" y="95" font-size="9" fill="#b45309" text-anchor="middle">Queries due slots</text>
+
+            <line x1="430" y1="72" x2="490" y2="72" stroke="#64748b" stroke-width="2" marker-end="url(#sch-arr)" />
+
+            <!-- Redis Broker -->
+            <rect x="490" y="30" width="140" height="85" rx="6" fill="#e0f2fe" stroke="#0ea5e9" stroke-width="1.5" />
+            <text x="560" y="55" font-size="11" font-weight="bold" fill="#0369a1" text-anchor="middle">Redis
+              Queue</text>
+            <text x="560" y="75" font-size="10" fill="#475569" text-anchor="middle">Task Broker</text>
+            <text x="560" y="95" font-size="9" fill="#0369a1" text-anchor="middle">publish_approved_blog</text>
+
+            <line x1="630" y1="72" x2="690" y2="72" stroke="#64748b" stroke-width="2" marker-end="url(#sch-arr)" />
+
+            <!-- Celery Worker -->
+            <rect x="690" y="30" width="140" height="85" rx="6" fill="#eef2ff" stroke="#4f46e5" stroke-width="1.5" />
+            <text x="760" y="55" font-size="11" font-weight="bold" fill="#312e81" text-anchor="middle">Celery
+              Worker</text>
+            <text x="760" y="75" font-size="10" fill="#475569" text-anchor="middle">Executes Dispatch</text>
+            <text x="760" y="95" font-size="9" fill="#4f46e5" text-anchor="middle">WordPress REST API</text>
+
+            <defs>
+              <marker id="sch-arr" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6"
+                orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#64748b" />
+              </marker>
+            </defs>
+          </svg>
+        </div>
+
+        <div class="card-grid" style="margin-top: 16px;">
+          <div class="card primary-border">
+            <h4>Transactional Scheduler Checks &amp; Active Cycle Invariant</h4>
+            <p>
+              The active cycle invariant (<strong>AT MOST ONE ACTIVE BLOG CYCLE PER COMPANY</strong>: 0 = valid idle, 1
+              = valid active, 2+ = invalid) is actively verified before any daily cycle begins.
+              <em>(Field Mapping: Implementation field in <code>blogs</code> table is <code>scheduled_at</code>;
+                architecture documentation refers to this target timestamp as <code>target_publish_at</code>.)</em>
+            </p>
+            <ul style="margin-left: 20px; margin-top: 8px;">
+              <li><strong>Pre-Execution Verification:</strong> When the Celery Beat scheduler triggers for a company's
+                scheduled day/time slot, it queries <code>blogs</code> for any article in a non-terminal status
+                (<code>IDEATION</code>, <code>DRAFTING</code>, <code>PENDING_REVIEW</code>, <code>EDITING</code>,
+                <code>NEEDS_IMPROVEMENT</code>, <code>PUBLISHING</code>, or <code>PUBLISHING_UNKNOWN</code>).</li>
+              <li><strong>Conflicting Cycle Rejection:</strong> If an active cycle exists, the scheduler logs an
+                <code>ACTIVE_CYCLE_HOLD</code> and suppresses creation of a new cycle. Company A cannot have Cycle 1
+                active and Cycle 2 accidentally created simultaneously.</li>
+              <li><strong>Concurrency Controls:</strong> Enforced through database transaction isolation, server-side
+                validation rules, row-level locking during cycle initiation, and partial unique constraints (e.g.
+                conditional index on active blog statuses per tenant).</li>
+            </ul>
+          </div>
+          <div class="card secondary-border">
+            <h4>Reviewer Ownership vs. Admin/Editor Read-Only</h4>
+            <p>
+              The publishing schedule (Monday–Sunday timetable with 24-hour time and toggle switches) is owned strictly
+              by the <strong>Reviewer</strong>.
+              Company Admins and Editors possess read-only visibility. Changes made by the Reviewer update the
+              PostgreSQL schedule rows immediately, which Celery Beat inspects dynamically on its 60-second polling
+              cadence.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 19 -->
+      <section id="sec-19">
+        <h2>
+          19. WordPress Publishing Architecture
+          <span class="tag-pill tag-implemented">[IMPLEMENTED (MOCKED) / LIVE PLANNED]</span>
+        </h2>
+        <p>
+          The publishing subsystem employs a headless provider adapter pattern:
+        </p>
+        <div class="callout callout-info" style="margin-bottom: 16px;">
+          <strong>Implementation vs. Production-Hardening Status:</strong>
+          <ul style="margin-left: 20px; margin-top: 6px;">
+            <li><strong>[IMPLEMENTED]:</strong> WordPress integration data model (<code>publishing_integrations</code>
+              with Fernet-encrypted credentials), WordPress service adapter, credential connection verification
+              (<code>is_verified</code>, <code>is_enabled</code>), publishing dispatch service, and automated test
+              suites verifying dispatch via mocked external HTTP requests.</li>
+            <li><strong>[PLANNED / HARDENING]:</strong> Live external end-to-end testing against third-party production
+              WordPress sites (tests currently use mocked responses), external post ID tracking
+              (<code>wp_post_id</code>), ambiguous network timeout reconciliation, duplicate-prevention idempotency
+              reconciliation, and provider adapters beyond WordPress.</li>
+          </ul>
+        </div>
+
+        <div class="diagram-wrapper">
+          <span class="diagram-title">Visual 10: Headless WordPress REST API Dispatch Sequence</span>
+          <svg viewBox="0 0 850 200" xmlns="http://www.w3.org/2000/svg">
+            <!-- Actor Lines -->
+            <line x1="100" y1="40" x2="100" y2="180" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4" />
+            <line x1="320" y1="40" x2="320" y2="180" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4" />
+            <line x1="560" y1="40" x2="560" y2="180" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4" />
+            <line x1="770" y1="40" x2="770" y2="180" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4" />
+
+            <!-- Headers -->
+            <rect x="30" y="10" width="140" height="30" rx="4" fill="#312e81" />
+            <text x="100" y="30" font-size="10" fill="#fff" text-anchor="middle" font-weight="bold">Celery Worker</text>
+
+            <rect x="250" y="10" width="140" height="30" rx="4" fill="#0ea5e9" />
+            <text x="320" y="30" font-size="10" fill="#fff" text-anchor="middle"
+              font-weight="bold">PublishingService</text>
+
+            <rect x="490" y="10" width="140" height="30" rx="4" fill="#8b5cf6" />
+            <text x="560" y="30" font-size="10" fill="#fff" text-anchor="middle"
+              font-weight="bold">WordPressAdapter</text>
+
+            <rect x="700" y="10" width="140" height="30" rx="4" fill="#10b981" />
+            <text x="770" y="30" font-size="10" fill="#fff" text-anchor="middle" font-weight="bold">WordPress REST
+              API</text>
+
+            <!-- Sequence 1 -->
+            <line x1="100" y1="65" x2="320" y2="65" stroke="#4f46e5" stroke-width="1.5" marker-end="url(#seq-arr)" />
+            <text x="210" y="60" font-size="9" fill="#334155" text-anchor="middle">publish_blog(blog_id)</text>
+
+            <!-- Sequence 2 -->
+            <line x1="320" y1="90" x2="560" y2="90" stroke="#0ea5e9" stroke-width="1.5" marker-end="url(#seq-arr)" />
+            <text x="440" y="85" font-size="9" fill="#334155" text-anchor="middle">package_payload(auth_keys)</text>
+
+            <!-- Sequence 3 -->
+            <line x1="560" y1="115" x2="770" y2="115" stroke="#8b5cf6" stroke-width="1.5" marker-end="url(#seq-arr)" />
+            <text x="665" y="110" font-size="9" fill="#334155" text-anchor="middle">POST /wp-json/wp/v2/posts</text>
+
+            <!-- Sequence 4 (Return) -->
+            <line x1="770" y1="140" x2="560" y2="140" stroke="#10b981" stroke-width="1.5" stroke-dasharray="3"
+              marker-end="url(#seq-arr-green)" />
+            <text x="665" y="135" font-size="9" fill="#047857" text-anchor="middle">201 Created {id, link}</text>
+
+            <!-- Sequence 5 -->
+            <line x1="560" y1="165" x2="320" y2="165" stroke="#10b981" stroke-width="1.5" stroke-dasharray="3"
+              marker-end="url(#seq-arr-green)" />
+            <text x="440" y="160" font-size="9" fill="#047857" text-anchor="middle">PublishSuccess(post_url)</text>
+
+            <defs>
+              <marker id="seq-arr" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6"
+                orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#4f46e5" />
+              </marker>
+              <marker id="seq-arr-green" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6"
+                orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#10b981" />
+              </marker>
+            </defs>
+          </svg>
+        </div>
+
+        <div class="card-grid" style="margin-bottom: 16px;">
+          <div class="card primary-border">
+            <h4>Fernet-Based Credential Encryption</h4>
+            <p>
+              Publishing credentials (WordPress Application Passwords and target endpoints) are encrypted at rest using
+              application-level Fernet symmetric encryption.
+              The encryption key is supplied through protected environment configuration and is never hardcoded or
+              returned through normal API responses.
+              Plaintext credentials are never exposed across client-facing REST APIs and are decrypted strictly within
+              ephemeral worker memory immediately before dispatch.
+            </p>
+          </div>
+          <div class="card warning-border">
+            <h4>Integration Verification Prerequisite <span class="tag-pill tag-arch">Implementation hardening
+                required</span></h4>
+            <p>
+              Automated or manual publishing can proceed only when the configured publishing integration record has been
+              successfully verified.
+              The publishing service evaluates the invariant:
+            </p>
+            <div
+              style="background:var(--slate-900); color:#38bdf8; padding:8px 12px; border-radius:6px; font-family:monospace; font-size:12px; margin-top:6px;">
+              integration.is_enabled == true &amp;&amp; integration.is_verified == true
+            </div>
+            <p style="font-size:12px; color:var(--slate-600); margin-top:6px;">
+              If unverified or disabled, the dispatch transaction halts immediately with status
+              <code>PUBLISH_INTEGRATION_UNVERIFIED</code>, preventing dispatches with faulty credentials.
+            </p>
+          </div>
+        </div>
+
+        <div class="card warning-border" style="margin-bottom: 16px;">
+          <h4>WordPress Duplicate-Publishing &amp; Idempotency Reconciliation <span class="tag-pill tag-arch">Planned
+              production-hardening requirement</span></h4>
+          <p>
+            A critical edge-case occurs when the application dispatches a publish request, WordPress creates the post,
+            but the network connection drops or times out before DailyBlog AI receives the HTTP response:
+          </p>
+          <ol style="margin-left: 20px; margin-top: 6px; font-size: 13px;">
+            <li>Application dispatches <code>POST /wp-json/wp/v2/posts</code> to the external WordPress site.</li>
+            <li>WordPress successfully processes the post and allocates a remote post ID.</li>
+            <li>Network drops or times out before the HTTP 201 response reaches the Celery worker.</li>
+            <li>DailyBlog AI cannot immediately determine if the post was created or failed in transit.</li>
+            <li>A naive blind retry would create a duplicate, publicly visible WordPress post.</li>
+          </ol>
+          <p style="margin-top: 10px;"><strong>Architectural Defense Strategy:</strong></p>
+          <ul style="margin-left: 20px; margin-top: 4px; font-size: 13px;">
+            <li><strong>Publishing Attempt Identifier:</strong> Persist a unique <code>publish_attempt_id</code> (UUID)
+              in <code>blogs</code> before initiating the network call.</li>
+            <li><strong>External Post ID Tracking:</strong> Store the external WordPress post ID
+              (<code>wp_post_id</code>) and canonical URL as soon as confirmation is acquired.</li>
+            <li><strong>CMS Reconciliation Before Retry:</strong> Before executing any retry on an ambiguous failure,
+              the worker queries the WordPress REST API by slug or title correlation to detect if the article was
+              already created remotely.</li>
+            <li><strong>Never Blindly Retry:</strong> If reconciliation discovers the post exists on WordPress, it marks
+              the blog as <code>PUBLISHED</code> and attaches the remote post ID, avoiding duplicate creation.</li>
+            <li><strong>Distinguishable Lifecycle States:</strong> The blog publishing lifecycle strictly distinguishes
+              between:
+              <code>PUBLISHING</code>, <code>PUBLISHED</code>, <code>PUBLISH_FAILED</code>, and
+              <code>PUBLISHING_UNKNOWN / RECONCILIATION_REQUIRED</code>.
+            </li>
+          </ul>
+        </div>
+
+        <div class="callout callout-danger">
+          <strong>Failure Handling Protocol:</strong> If WordPress returns 401 Unauthorized, 500 Internal Error, or an
+          unresolvable network timeout,
+          the transaction marks the blog state as <code>PUBLISH_FAILED</code>, commits the diagnostic log, and generates
+          alert notifications
+          routed strictly to the <strong>Editor and Company Admin</strong>. The active blog cycle remains open and
+          unresolved until manual resolution.
+        </div>
+      </section>
+
+      <!-- SECTION 20.0 (APPLICATION MODULES & RESPONSIBILITIES) -->
+      <section id="sec-app-modules">
+        <h2>
+          20.0 Application Modules &amp; Responsibilities
+          <span class="tag-pill tag-arch">Core System Modular Decomposition</span>
+        </h2>
+        <p>
+          To satisfy enterprise modularity, separation of concerns, and maintainable software engineering boundaries,
+          DailyBlog AI is structured into eleven major application modules.
+          Each module encapsulates domain business rules, schemas, persistence logic, and operational boundaries:
+        </p>
+
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Module Name</th>
+                <th>Domain Responsibility</th>
+                <th>Architectural Implementation Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>1</td>
+                <td><strong>Identity &amp; Access</strong></td>
+                <td>Authentication, OTP verification, CAPTCHA defense, JWT issuance and refresh, RBAC vertical
+                  authorization (Admin &rarr; Reviewer &rarr; Editor), access requests, temporary password generation
+                  and forced reset lifecycle (Reviewer 42h, Editor 48h).</td>
+                <td><span class="tag-pill tag-implemented">[IMPLEMENTED]</span> Backend security dependencies, models,
+                  services, and session tokens.</td>
+              </tr>
+              <tr>
+                <td>2</td>
+                <td><strong>Company Context</strong></td>
+                <td>Company profile management, brand voice parameters, products and services definitions, target
+                  audience personas, marketing goals, promotion guidelines, upcoming projects, and partner company
+                  records.</td>
+                <td><span class="tag-pill tag-implemented">[IMPLEMENTED]</span> Relational models, schemas, and
+                  persistence services.</td>
+              </tr>
+              <tr>
+                <td>3</td>
+                <td><strong>Knowledge &amp; RAG</strong></td>
+                <td>Document ingestion (PDF, DOCX, TXT), text extraction, recursive token chunking, embedding generation
+                  via pluggable models, and tenant-scoped vector retrieval with HNSW indexing.</td>
+                <td><span class="tag-pill tag-target">[ARCHITECTURE / DESIGN]</span> PostgreSQL + pgvector schema and
+                  similarity query contracts specified.</td>
+              </tr>
+              <tr>
+                <td>4</td>
+                <td><strong>AI Orchestration</strong></td>
+                <td>Topic ideation, topic proposal selection, research/retrieval coordination, blog planning, deep
+                  generation, revision execution, AST/SEO validation nodes, and stateful human-in-the-loop (HITL)
+                  checkpoints.</td>
+                <td><span class="tag-pill tag-target">[ARCHITECTURE / DESIGN]</span> LangGraph directed cyclic state
+                  machine specification.</td>
+              </tr>
+              <tr>
+                <td>5</td>
+                <td><strong>Blog Format</strong></td>
+                <td>Immutable Level 1 system baseline schema, Level 2 company global format management, Level 3
+                  current-blog ephemeral overrides, format versioning, and AST structural compliance validation.</td>
+                <td><span class="tag-pill tag-target">[ARCHITECTURE / DESIGN]</span> Pydantic schema validation
+                  contracts and three-tier hierarchy models.</td>
+              </tr>
+              <tr>
+                <td>6</td>
+                <td><strong>Blog Workspace</strong></td>
+                <td>Editor-AI conversational working thread, blog draft lifecycle management, Edit Mode state
+                  synchronization, attachment handling, prompt instruction dispatch, and revision history tracking.</td>
+                <td><span class="tag-pill tag-target">[ARCHITECTURE / DESIGN]</span> Single continuous thread
+                  architecture and draft state models specified.</td>
+              </tr>
+              <tr>
+                <td>7</td>
+                <td><strong>Review &amp; Governance</strong></td>
+                <td>Reviewer action queue, time-gated decision window evaluation (&gt;20m, 20-10m, 10-5m, 5-0m, 4:00 PM
+                  lock), approval, rejection, structured need-improvement feedback, and rescheduling coordination.</td>
+                <td><span class="tag-pill tag-target">[ARCHITECTURE / DESIGN]</span> Time-gated review state machine and
+                  governance logic specified.</td>
+              </tr>
+              <tr>
+                <td>8</td>
+                <td><strong>Scheduling</strong></td>
+                <td>Recurring weekly publishing timetable (Monday–Sunday 24h schedule with toggles), target publish
+                  timestamp evaluation, active cycle invariant pre-checks, and Celery Beat periodic polling
+                  coordination.</td>
+                <td><span class="tag-pill tag-target">[ARCHITECTURE / DESIGN]</span> PostgreSQL schedule model and
+                  background execution flow specified.</td>
+              </tr>
+              <tr>
+                <td>9</td>
+                <td><strong>Publishing</strong></td>
+                <td>Publishing integration credential management, provider abstraction adapter, WordPress connection
+                  verification (<code>is_verified</code>), payload packaging, dispatch execution, and publishing failure
+                  handling.</td>
+                <td><span class="tag-pill tag-implemented">[IMPLEMENTED (MOCKED) / HARDENING PLANNED]</span> Integration
+                  model, encryption, and verification implemented; live external E2E planned.</td>
+              </tr>
+              <tr>
+                <td>10</td>
+                <td><strong>Notifications</strong></td>
+                <td>Review request dispatch, workflow state updates, improvement feedback alerts, publishing failure
+                  warnings, and user-facing action banners across Editor, Reviewer, and Admin roles.</td>
+                <td><span class="tag-pill tag-target">[ARCHITECTURE / DESIGN]</span> Notification routing architecture
+                  specified; UI alerts planned.</td>
+              </tr>
+              <tr>
+                <td>11</td>
+                <td><strong>Administration</strong></td>
+                <td>Company settings configuration, user lifecycle management, publishing integrations setup, workspace
+                  controls, and audit-sensitive operations (account deletion re-authentication).</td>
+                <td><span class="tag-pill tag-implemented">[IMPLEMENTED / DESIGN]</span> Backend settings and user
+                  management models implemented; full admin UI planned.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="callout callout-info" style="margin-top: 14px;">
+          <strong>Frontend UI Scope Notice:</strong>
+          The eleven modules defined above represent core backend domain architecture, service boundaries, data schemas,
+          and API contracts.
+          Frontend React UI dashboards for each module are planned architecture implementations; backend capability has
+          been established as indicated in the status column.
+        </div>
+      </section>
+
+      <!-- SECTION 20 -->
+      <section id="sec-20">
+        <h2>
+          20. API Layer Architecture
+          <span class="tag-pill tag-arch">Architecture Decision</span>
+        </h2>
+        <p>
+          The backend API enforces strict clean architecture layering. Route handlers contain zero direct database
+          queries or LLM calls:
+        </p>
+
+        <div class="diagram-wrapper">
+          <span class="diagram-title">Visual 11: Decoupled Multi-Tier API Layer Architecture</span>
+          <svg viewBox="0 0 850 140" xmlns="http://www.w3.org/2000/svg">
+            <!-- Layer 1 -->
+            <rect x="20" y="25" width="180" height="85" rx="6" fill="#eef2ff" stroke="#4f46e5" />
+            <text x="110" y="55" font-size="11" font-weight="bold" fill="#312e81" text-anchor="middle">API
+              Routers</text>
+            <text x="110" y="75" font-size="9.5" fill="#475569" text-anchor="middle">FastAPI Endpoints</text>
+            <text x="110" y="93" font-size="9" fill="#6d28d9" text-anchor="middle">HTTP serialization</text>
+
+            <line x1="200" y1="67" x2="240" y2="67" stroke="#64748b" stroke-width="2" marker-end="url(#api-arr)" />
+
+            <!-- Layer 2 -->
+            <rect x="240" y="25" width="180" height="85" rx="6" fill="#e0f2fe" stroke="#0ea5e9" />
+            <text x="330" y="55" font-size="11" font-weight="bold" fill="#0369a1" text-anchor="middle">Pydantic
+              Schemas</text>
+            <text x="330" y="75" font-size="9.5" fill="#475569" text-anchor="middle">Request / Response DTOs</text>
+            <text x="330" y="93" font-size="9" fill="#0284c7" text-anchor="middle">Type &amp; bounds check</text>
+
+            <line x1="420" y1="67" x2="460" y2="67" stroke="#64748b" stroke-width="2" marker-end="url(#api-arr)" />
+
+            <!-- Layer 3 -->
+            <rect x="460" y="25" width="180" height="85" rx="6" fill="#fdf4ff" stroke="#c084fc" />
+            <text x="550" y="55" font-size="11" font-weight="bold" fill="#7e22ce" text-anchor="middle">Domain
+              Services</text>
+            <text x="550" y="75" font-size="9.5" fill="#475569" text-anchor="middle">Business Logic &amp; Rules</text>
+            <text x="550" y="93" font-size="9" fill="#7e22ce" text-anchor="middle">Orchestrates workflows</text>
+
+            <line x1="640" y1="67" x2="680" y2="67" stroke="#64748b" stroke-width="2" marker-end="url(#api-arr)" />
+
+            <!-- Layer 4 -->
+            <rect x="680" y="25" width="150" height="85" rx="6" fill="#ecfdf5" stroke="#10b981" />
+            <text x="755" y="55" font-size="11" font-weight="bold" fill="#065f46"
+              text-anchor="middle">Repositories</text>
+            <text x="755" y="75" font-size="9.5" fill="#475569" text-anchor="middle">SQLAlchemy 2.0</text>
+            <text x="755" y="93" font-size="9" fill="#059669" text-anchor="middle">Scoped persistence</text>
+
+            <defs>
+              <marker id="api-arr" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6"
+                orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#64748b" />
+              </marker>
+            </defs>
+          </svg>
+        </div>
+
+        <div class="card primary-border" style="margin-top: 14px; margin-bottom: 14px;">
+          <h4>FastAPI Synchronous Boundary Responsibilities</h4>
+          <ul style="margin-left: 20px; margin-top: 6px;">
+            <li><strong>Synchronous API Boundary:</strong> Serves as the high-throughput HTTP/REST gateway for incoming
+              user interactions, dashboard navigation, and external webhooks.</li>
+            <li><strong>Authentication &amp; Authorization:</strong> Decodes and validates JWT bearer tokens, enforces
+              RBAC authority (Company Admin &rarr; Reviewer &rarr; Editor), and injects tenant scope
+              (<code>company_id</code>).</li>
+            <li><strong>Strict Request Validation:</strong> Enforces runtime schema bounds and data sanitation via
+              Pydantic v2 schemas before business services execute.</li>
+            <li><strong>Business-Service Invocation:</strong> Coordinates service layer execution, invoking domain
+              logic, transaction blocks, and persistence repositories.</li>
+            <li><strong>CRUD &amp; Administrative Operations:</strong> Directly manages user settings, publishing
+              schedules, format profiles, and access requests, while delegating stateful AI generation loops to
+              <strong>LangGraph</strong> and background/scheduled tasks to <strong>Celery</strong>.</li>
+          </ul>
+        </div>
+
+        <p>API routes are organized under clean bounded domains: <code>/auth</code>, <code>/companies</code>,
+          <code>/users</code>, <code>/access-requests</code>, <code>/ai-context</code>, <code>/blog-formats</code>,
+          <code>/knowledge</code>, <code>/chats</code>, <code>/blogs</code>, <code>/reviews</code>,
+          <code>/schedules</code>, and <code>/publishing</code>.</p>
+
+        <div class="table-container" style="margin-top: 18px;">
+          <h4 style="margin-bottom: 12px; color: var(--slate-800);">API Endpoint Implementation vs. Target Contract
+            Classification</h4>
+          <table>
+            <thead>
+              <tr>
+                <th>Domain / Route Group</th>
+                <th>Status</th>
+                <th>Implemented Endpoints vs. Target Architecture Contracts</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>/api/v1/auth</code></td>
+                <td><span class="tag-pill tag-implemented">[IMPLEMENTED]</span></td>
+                <td>Implemented: <code>POST /login</code>, <code>POST /refresh</code>, <code>POST /logout</code>, token
+                  verification guards.</td>
+              </tr>
+              <tr>
+                <td><code>/api/v1/companies</code> &amp; <code>/users</code></td>
+                <td><span class="tag-pill tag-implemented">[IMPLEMENTED]</span></td>
+                <td>Implemented: 4-stage registration flow, company profile creation, user retrieval, RBAC role
+                  enforcement.</td>
+              </tr>
+              <tr>
+                <td><code>/api/v1/access-requests</code></td>
+                <td><span class="tag-pill tag-implemented">[IMPLEMENTED]</span></td>
+                <td>Implemented: <code>POST /invite-reviewer</code>, <code>POST /request-editor</code>, OTP generation,
+                  CAPTCHA verification.</td>
+              </tr>
+              <tr>
+                <td><code>/api/v1/company-ai-profile</code></td>
+                <td><span class="tag-pill tag-implemented">[IMPLEMENTED]</span></td>
+                <td>Implemented: <code>GET /</code>, <code>PUT /</code> (brand voice, target audience, marketing goals,
+                  products/services).</td>
+              </tr>
+              <tr>
+                <td><code>/api/v1/publishing-integrations</code></td>
+                <td><span class="tag-pill tag-implemented">[IMPLEMENTED]</span></td>
+                <td>Implemented: <code>GET /</code>, <code>POST /</code>, <code>POST /verify</code> (Fernet encryption,
+                  WordPress credential verification).</td>
+              </tr>
+              <tr>
+                <td><code>/api/v1/blogs</code></td>
+                <td><span class="tag-pill tag-target">[TARGET CONTRACT]</span></td>
+                <td>Target API Contracts: <code>POST /blogs/{id}/submit</code>, <code>POST /blogs/{id}/edit-mode</code>,
+                  draft retrieval and state queries.</td>
+              </tr>
+              <tr>
+                <td><code>/api/v1/reviews</code></td>
+                <td><span class="tag-pill tag-target">[TARGET CONTRACT]</span></td>
+                <td>Target API Contracts: <code>POST /reviews/{id}/decide</code> (APPROVE, NEED_IMPROVEMENT, REJECT,
+                  RESCHEDULE with time validation).</td>
+              </tr>
+              <tr>
+                <td><code>/api/v1/blog-formats</code></td>
+                <td><span class="tag-pill tag-target">[TARGET CONTRACT]</span></td>
+                <td>Target API Contracts: <code>GET /blog-formats/company</code>,
+                  <code>PUT /blog-formats/company</code>, override endpoints.</td>
+              </tr>
+              <tr>
+                <td><code>/api/v1/chats</code></td>
+                <td><span class="tag-pill tag-target">[TARGET CONTRACT]</span></td>
+                <td>Target API Contracts: <code>POST /chats/{thread_id}/message</code>, attachment upload, thread state
+                  serialization.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- SECTION 21 -->
+      <section id="sec-21">
+        <h2>
+          21. Database / ER Architecture
+          <span class="tag-pill tag-arch">Architecture Decision</span>
+        </h2>
+        <p>
+          The relational data model enforces enterprise normalization, tenant partitioning, and full auditability:
+        </p>
+
+        <div class="diagram-wrapper">
+          <span class="diagram-title">Visual 12: Entity Relational (ER) Schema Architecture</span>
+          <svg viewBox="0 0 950 360" xmlns="http://www.w3.org/2000/svg">
+            <!-- Company Entity -->
+            <rect x="20" y="20" width="180" height="130" rx="6" fill="#f8fafc" stroke="#4f46e5" stroke-width="2" />
+            <rect x="20" y="20" width="180" height="24" rx="6" fill="#4f46e5" />
+            <text x="110" y="37" font-size="11" fill="#fff" font-weight="bold" text-anchor="middle">companies</text>
+            <text x="30" y="60" font-size="9.5" fill="#334155">PK id : UUID</text>
+            <text x="30" y="78" font-size="9.5" fill="#334155">name : VARCHAR(255)</text>
+            <text x="30" y="96" font-size="9.5" fill="#334155">description : TEXT</text>
+            <text x="30" y="114" font-size="9.5" fill="#334155">industry : VARCHAR(100)</text>
+            <text x="30" y="132" font-size="9.5" fill="#334155">created_at : TIMESTAMP</text>
+
+            <!-- User Entity -->
+            <rect x="240" y="20" width="190" height="145" rx="6" fill="#f8fafc" stroke="#0ea5e9" stroke-width="2" />
+            <rect x="240" y="20" width="190" height="24" rx="6" fill="#0ea5e9" />
+            <text x="335" y="37" font-size="11" fill="#fff" font-weight="bold" text-anchor="middle">users</text>
+            <text x="250" y="60" font-size="9.5" fill="#334155">PK id : UUID</text>
+            <text x="250" y="78" font-size="9.5" fill="#334155">FK company_id : UUID</text>
+            <text x="250" y="96" font-size="9.5" fill="#334155">email : VARCHAR(255)</text>
+            <text x="250" y="114" font-size="9.5" fill="#334155">role : VARCHAR(50)</text>
+            <text x="250" y="132" font-size="9.5" fill="#334155">password_hash : VARCHAR</text>
+            <text x="250" y="150" font-size="9.5" fill="#334155">temp_pass_expires : TS</text>
+
+            <!-- Blogs Entity -->
+            <rect x="470" y="20" width="200" height="172" rx="6" fill="#f8fafc" stroke="#8b5cf6" stroke-width="2" />
+            <rect x="470" y="20" width="200" height="24" rx="6" fill="#8b5cf6" />
+            <text x="570" y="37" font-size="11" fill="#fff" font-weight="bold" text-anchor="middle">blogs</text>
+            <text x="480" y="58" font-size="9" fill="#334155">PK id : UUID</text>
+            <text x="480" y="74" font-size="9" fill="#334155">FK company_id : UUID</text>
+            <text x="480" y="90" font-size="9" fill="#334155">FK editor_id : UUID</text>
+            <text x="480" y="106" font-size="9" fill="#334155">status : VARCHAR(50)</text>
+            <text x="480" y="122" font-size="9" fill="#334155">title : VARCHAR(255)</text>
+            <text x="480" y="136" font-size="8" fill="#334155">scheduled_at (target_publish_at)</text>
+            <text x="480" y="150" font-size="8" fill="#94a3b8">wp_post_id [PLANNED]</text>
+            <text x="480" y="164" font-size="8" fill="#94a3b8">publish_attempt_id [PLANNED]</text>
+            <text x="480" y="178" font-size="8" fill="#94a3b8">reconciliation_state [PLANNED]</text>
+
+            <!-- Knowledge Chunks Entity (pgvector) -->
+            <rect x="710" y="20" width="220" height="145" rx="6" fill="#f8fafc" stroke="#10b981" stroke-width="2" />
+            <rect x="710" y="20" width="220" height="24" rx="6" fill="#10b981" />
+            <text x="820" y="37" font-size="11" fill="#fff" font-weight="bold"
+              text-anchor="middle">knowledge_chunks</text>
+            <text x="720" y="60" font-size="9.5" fill="#334155">PK id : UUID</text>
+            <text x="720" y="78" font-size="9.5" fill="#334155">FK company_id : UUID</text>
+            <text x="720" y="96" font-size="9.5" fill="#334155">FK document_id : UUID</text>
+            <text x="720" y="114" font-size="9.5" fill="#334155">content : TEXT</text>
+            <text x="720" y="132" font-size="9.5" fill="#047857" font-weight="bold">embedding : vector(dim)</text>
+            <text x="720" y="150" font-size="9.5" fill="#334155">metadata_json : JSONB</text>
+
+            <!-- Lower Row: Chat Threads, Reviews, Schedules -->
+            <!-- Chat Threads -->
+            <rect x="20" y="200" width="200" height="130" rx="6" fill="#f8fafc" stroke="#64748b" />
+            <rect x="20" y="200" width="200" height="24" rx="6" fill="#64748b" />
+            <text x="120" y="217" font-size="11" fill="#fff" font-weight="bold"
+              text-anchor="middle">blog_chat_threads</text>
+            <text x="30" y="240" font-size="9.5" fill="#334155">PK id : UUID</text>
+            <text x="30" y="258" font-size="9.5" fill="#334155">FK company_id : UUID</text>
+            <text x="30" y="276" font-size="9.5" fill="#334155">FK blog_id : UUID</text>
+            <text x="30" y="294" font-size="9.5" fill="#334155">thread_state : JSONB</text>
+
+            <!-- Reviews -->
+            <rect x="260" y="200" width="200" height="130" rx="6" fill="#f8fafc" stroke="#f59e0b" />
+            <rect x="260" y="200" width="200" height="24" rx="6" fill="#f59e0b" />
+            <text x="360" y="217" font-size="11" fill="#fff" font-weight="bold" text-anchor="middle">blog_reviews</text>
+            <text x="270" y="240" font-size="9.5" fill="#334155">PK id : UUID</text>
+            <text x="270" y="258" font-size="9.5" fill="#334155">FK reviewer_id : UUID</text>
+            <text x="270" y="276" font-size="9.5" fill="#334155">decision : VARCHAR(50)</text>
+            <text x="270" y="294" font-size="9.5" fill="#334155">feedback_text : TEXT</text>
+
+            <!-- Publishing Schedules -->
+            <rect x="500" y="200" width="200" height="130" rx="6" fill="#f8fafc" stroke="#0ea5e9" />
+            <rect x="500" y="200" width="200" height="24" rx="6" fill="#0ea5e9" />
+            <text x="600" y="217" font-size="11" fill="#fff" font-weight="bold"
+              text-anchor="middle">publishing_schedules</text>
+            <text x="510" y="240" font-size="9.5" fill="#334155">PK id : UUID</text>
+            <text x="510" y="258" font-size="9.5" fill="#334155">FK company_id : UUID</text>
+            <text x="510" y="276" font-size="9.5" fill="#334155">day_of_week : INT (0-6)</text>
+            <text x="510" y="294" font-size="9.5" fill="#334155">publish_time : TIME</text>
+
+            <!-- Publishing Integrations -->
+            <rect x="730" y="200" width="205" height="155" rx="6" fill="#f8fafc" stroke="#10b981" />
+            <rect x="730" y="200" width="205" height="24" rx="6" fill="#10b981" />
+            <text x="832" y="217" font-size="10.5" fill="#fff" font-weight="bold"
+              text-anchor="middle">publishing_integrations</text>
+            <text x="740" y="238" font-size="8.5" fill="#334155">PK id : UUID, FK company_id : UUID</text>
+            <text x="740" y="254" font-size="8.5" fill="#334155">provider, site_url, username</text>
+            <text x="740" y="270" font-size="8.5" fill="#047857"
+              font-weight="bold">application_password_encrypted</text>
+            <text x="740" y="286" font-size="8.5" fill="#334155">is_enabled, is_verified : BOOLEAN</text>
+            <text x="740" y="302" font-size="8.5" fill="#334155">last_verified_at : TS, last_error : TEXT</text>
+            <text x="740" y="318" font-size="8.5" fill="#334155">created_at, updated_at : TIMESTAMP</text>
+            <text x="740" y="334" font-size="8" fill="#94a3b8">reconciliation_fields [PLANNED]</text>
+
+            <!-- Link lines -->
+            <line x1="200" y1="50" x2="240" y2="50" stroke="#94a3b8" stroke-width="1.5" />
+            <line x1="430" y1="50" x2="470" y2="50" stroke="#94a3b8" stroke-width="1.5" />
+            <line x1="670" y1="50" x2="710" y2="50" stroke="#94a3b8" stroke-width="1.5" />
+          </svg>
+        </div>
+
+        <div class="table-container" style="margin-top: 20px;">
+          <h4 style="margin-bottom: 12px; color: var(--slate-800);">Conceptual Entity-Relationship &amp; Tenant
+            Partitioning Specification</h4>
+          <table>
+            <thead>
+              <tr>
+                <th>Entity / Table</th>
+                <th>Conceptual Role &amp; Tenant Ownership</th>
+                <th>Primary Keys &amp; Foreign Key Relationships</th>
+                <th>Architectural Invariants &amp; Constraints</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>companies</strong></td>
+                <td>Tenant Root Anchor</td>
+                <td><code>PK id (UUID)</code></td>
+                <td>Top-level tenant isolation boundary. Cascade anchor for all enterprise data.</td>
+              </tr>
+              <tr>
+                <td><strong>users</strong></td>
+                <td>Authenticated Actors</td>
+                <td><code>PK id</code>, <code>FK company_id &rarr; companies(id)</code></td>
+                <td>Unique <code>(company_id, email)</code>. Role restricted to Company Admin, Reviewer, or Editor.
+                  Tracks temporary password expiry (Reviewer 42h, Editor 48h).</td>
+              </tr>
+              <tr>
+                <td><strong>company_ai_profiles</strong></td>
+                <td>Durable Organizational Brand Context</td>
+                <td><code>PK id</code>, <code>FK company_id &rarr; companies(id)</code></td>
+                <td>Strict 1:1 relationship with company. Stores structured brand voice, target audience, marketing
+                  goals, guidelines, products/services, promotion settings, upcoming projects, and partner companies.
+                </td>
+              </tr>
+              <tr>
+                <td><strong>company_settings</strong></td>
+                <td>Operational Settings &amp; Preferences</td>
+                <td><code>PK id</code>, <code>FK company_id &rarr; companies(id)</code></td>
+                <td>Strict 1:1 relationship with company. Stores tenant configuration, operational toggles, notification
+                  channel settings, and default UI preferences.</td>
+              </tr>
+              <tr>
+                <td><strong>blog_formats</strong></td>
+                <td>Company Global Blog Format</td>
+                <td><code>PK id</code>, <code>FK company_id &rarr; companies(id)</code></td>
+                <td>Strict 1:1 relationship with company. Inherits from system baseline. Defines default structural
+                  schema and SEO targets for all future blog cycles.</td>
+              </tr>
+              <tr>
+                <td><strong>blog_format_overrides</strong></td>
+                <td>Current Blog Format Override</td>
+                <td><code>PK id</code>, <code>FK blog_id &rarr; blogs(id)</code>,
+                  <code>FK company_id &rarr; companies(id)</code></td>
+                <td>Strict 1:1 relationship with active blog. Overrides sections/headings strictly for the active cycle
+                  without mutating global format.</td>
+              </tr>
+              <tr>
+                <td><strong>knowledge_documents</strong></td>
+                <td>Ingested Knowledge Document Metadata</td>
+                <td><code>PK id</code>, <code>FK company_id &rarr; companies(id)</code></td>
+                <td>Tracks source documents (PDF, DOCX, TXT, factsheets). Enforces sha256 deduplication per tenant.</td>
+              </tr>
+              <tr>
+                <td><strong>knowledge_chunks</strong></td>
+                <td>Vectorized Document Chunks</td>
+                <td><code>PK id</code>, <code>FK document_id &rarr; knowledge_documents(id)</code>,
+                  <code>FK company_id &rarr; companies(id)</code></td>
+                <td>Stores text chunk content, <code>embedding vector(dim)</code> with model-determined dimension, and
+                  chunk metadata. HNSW/vector similarity indexing with tenant-scoped filtering by
+                  <code>company_id</code> (guaranteeing Company A retrieval never returns Company B knowledge).</td>
+              </tr>
+              <tr>
+                <td><strong>blogs</strong></td>
+                <td>Daily Blog Article Record</td>
+                <td><code>PK id</code>, <code>FK company_id &rarr; companies(id)</code>,
+                  <code>FK editor_id &rarr; users(id)</code></td>
+                <td>Preserves all historical blogs. Protected by transactional concurrency control enforcing <strong>at
+                    most one active blog cycle per company</strong> (0 = valid idle, 1 = valid active, 2+ =
+                  invalid).<br><em>Field Mapping:</em> Current implementation field is <code>scheduled_at</code>;
+                  architecture terminology is <code>target_publish_at</code>.<br><em>Planned Hardening Fields:</em>
+                  <code>publish_attempt_id [PLANNED]</code>, <code>wp_post_id [PLANNED]</code>,
+                  <code>publish_failure_reason [PLANNED]</code>, <code>reconciliation_state [PLANNED]</code>.</td>
+              </tr>
+              <tr>
+                <td><strong>blog_chat_threads</strong></td>
+                <td>Continuous Workflow Conversation</td>
+                <td><code>PK id</code>, <code>FK blog_id &rarr; blogs(id)</code>,
+                  <code>FK company_id &rarr; companies(id)</code></td>
+                <td>Strict 1:1 with blog cycle. Single persistent conversation thread throughout ideation, drafting, and
+                  revisions. Stores the workflow thread/checkpoint reference required by the target LangGraph orchestration architecture.</td>
+              </tr>
+              <tr>
+                <td><strong>blog_chat_messages</strong></td>
+                <td>Conversational Message History</td>
+                <td><code>PK id</code>, <code>FK thread_id &rarr; blog_chat_threads(id)</code>,
+                  <code>FK company_id &rarr; companies(id)</code></td>
+                <td>Chronological messages within the active cycle. Supports text, attachments, audio transcripts, and
+                  system alerts.</td>
+              </tr>
+              <tr>
+                <td><strong>blog_reviews</strong></td>
+                <td>Reviewer Governance Log</td>
+                <td><code>PK id</code>, <code>FK blog_id &rarr; blogs(id)</code>,
+                  <code>FK reviewer_id &rarr; users(id)</code>, <code>FK company_id &rarr; companies(id)</code></td>
+                <td>Records time-gated decision (APPROVE, NEED_IMPROVEMENT, REJECT, RESCHEDULE), reviewer notes, and UTC
+                  timestamps.</td>
+              </tr>
+              <tr>
+                <td><strong>publishing_schedules</strong></td>
+                <td>Weekly Recurring Timetable</td>
+                <td><code>PK id</code>, <code>FK company_id &rarr; companies(id)</code></td>
+                <td>Monday–Sunday slots with 24h time and ON/OFF toggle. Managed exclusively by Reviewer; read-only for
+                  Admin &amp; Editor. Source of truth polled by Celery Beat.</td>
+              </tr>
+              <tr>
+                <td><strong>publishing_integrations</strong></td>
+                <td>Headless CMS Publishing Targets <span class="tag-pill tag-implemented">[IMPLEMENTED]</span></td>
+                <td><code>PK id</code>, <code>FK company_id &rarr; companies(id)</code></td>
+                <td>
+                  Full implemented schema: <code>id</code>, <code>company_id</code>, <code>provider</code>,
+                  <code>site_url</code>, <code>username</code>, <code>application_password_encrypted</code>,
+                  <code>is_enabled</code>, <code>is_verified</code>, <code>last_verified_at</code>,
+                  <code>last_error</code>, <code>created_at</code>, <code>updated_at</code>.<br>
+                  <strong>Verification Architecture:</strong> Implements <code>is_enabled</code> and
+                  <code>is_verified</code> (NOT merely <code>is_active</code>). Password encrypted at rest via Fernet;
+                  connection validated via WordPress REST API verification endpoint.<br>
+                  <em>Planned Hardening:</em> External post ID reconciliation and duplicate-prevention state tracking
+                  designated as <code>[PLANNED]</code>.
+                </td>
+              </tr>
+              <tr>
+                <td><strong>access_requests</strong></td>
+                <td>Registration &amp; Invitation Workflows</td>
+                <td><code>PK id</code>, <code>FK company_id &rarr; companies(id)</code></td>
+                <td>Governs reviewer invitations (24h SLA) and editor requests. Enforces OTP attempt limits (max 3/24h)
+                  and secure token hashes.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- SECTION 22 -->
+      <section id="sec-22">
+        <h2>
+          22. Redis &amp; Celery Queue Architecture
+          <span class="tag-pill tag-arch">Architecture Decision</span>
+        </h2>
+        <p>
+          Redis serves as a high-speed cache and Celery task broker, strictly differentiated from PostgreSQL's durable
+          persistence and LangGraph's workflow engine:
+        </p>
+        <ul>
+          <li><strong>Redis Responsibilities:</strong> Asynchronous task broker for Celery, short-lived coordination
+            state, active edit locks, and rate-limiting counters (OTP/CAPTCHA). Redis is not designated as a persistent
+            result backend.</li>
+          <li><strong>Celery Worker Responsibilities:</strong> Asynchronous, background, and scheduled job processing:
+            specifically scheduled publishing dispatch, periodic cron polling via Celery Beat, background document
+            ingestion where appropriate, and long-running background tasks. (Celery is an asynchronous worker system,
+            not the AI reasoning engine).</li>
+          <li><strong>LangGraph Workflow Responsibilities:</strong> AI workflow orchestration, topic ideation and
+            selection, iterative research/retrieval flow, blog planning, draft generation, format and SEO validation
+            flow, human-in-the-loop state checkpoints, and conversational state transitions. (LangGraph orchestrates
+            graph state transitions but relies on PostgreSQL for durable persistence).</li>
+          <li><strong>PostgreSQL Responsibilities:</strong> Durable, ACID-compliant system of record for all
+            organizational entities, user credentials, publishing schedules, blogs, conversational thread checkpoints,
+            and pgvector embeddings.</li>
+          <li><strong>Worker Queue Segregation:</strong> Queues are partitioned into <code>default</code>,
+            <code>background_tasks</code>, and <code>publishing</code> to ensure scheduled publishing dispatches are
+            never starved or delayed by concurrent background operations.</li>
+        </ul>
+      </section>
+
+      <!-- SECTION 23 -->
+      <section id="sec-23">
+        <h2>
+          23. n8n External Automation Boundary
+          <span class="tag-pill tag-arch">Architecture Decision</span>
+        </h2>
+        <div class="callout callout-warning">
+          <strong>Strict Decoupling Mandate:</strong>
+          n8n is strictly an external integration orchestrator (e.g. forwarding publication alerts to external
+          Slack/Discord webhooks).
+          <strong>n8n is NEVER the source of truth</strong> for blog lifecycle states, tenant ownership, memory, review
+          approvals, or WordPress credentials.
+          Core business state remains exclusively inside FastAPI + PostgreSQL + LangGraph.
+        </div>
+      </section>
+
+      <!-- SECTION 24 -->
+      <section id="sec-24">
+        <h2>
+          24. Frontend React Architecture
+          <span class="tag-pill tag-arch">Architecture Decision</span>
+        </h2>
+        <p>
+          The planned React frontend architecture specifies role-aware route guards and modular dashboard shells <span
+            class="tag-pill tag-target">[ARCHITECTURE / DESIGN]</span>:
+        </p>
+
+        <div class="diagram-wrapper">
+          <span class="diagram-title">Visual 13: Role-Aware React Frontend Architecture</span>
+          <svg viewBox="0 0 850 160" xmlns="http://www.w3.org/2000/svg">
+            <!-- Auth / Router -->
+            <rect x="20" y="20" width="160" height="110" rx="8" fill="#eef2ff" stroke="#4f46e5" stroke-width="1.5" />
+            <text x="100" y="48" font-size="11" font-weight="bold" fill="#312e81" text-anchor="middle">React Router
+              v6</text>
+            <text x="100" y="70" font-size="10" fill="#475569" text-anchor="middle">AuthGuard</text>
+            <text x="100" y="90" font-size="10" fill="#475569" text-anchor="middle">TenantContext</text>
+            <text x="100" y="110" font-size="9" fill="#6d28d9" text-anchor="middle">Token Refresh</text>
+
+            <line x1="180" y1="75" x2="240" y2="75" stroke="#94a3b8" stroke-width="2" marker-end="url(#fe-arr)" />
+
+            <!-- Shell -->
+            <rect x="240" y="20" width="160" height="110" rx="8" fill="#f8fafc" stroke="#64748b" stroke-width="1.5" />
+            <text x="320" y="48" font-size="11" font-weight="bold" fill="#1e293b" text-anchor="middle">Dashboard
+              Shell</text>
+            <text x="320" y="70" font-size="10" fill="#475569" text-anchor="middle">Header (Logo + Name)</text>
+            <text x="320" y="90" font-size="10" fill="#475569" text-anchor="middle">Role Navigation</text>
+            <text x="320" y="110" font-size="9" fill="#0284c7" text-anchor="middle">Notifications Poller</text>
+
+            <!-- 3 Role Branches -->
+            <line x1="400" y1="45" x2="480" y2="35" stroke="#312e81" stroke-width="1.5" marker-end="url(#fe-arr)" />
+            <line x1="400" y1="75" x2="480" y2="75" stroke="#0ea5e9" stroke-width="1.5" marker-end="url(#fe-arr)" />
+            <line x1="400" y1="105" x2="480" y2="115" stroke="#8b5cf6" stroke-width="1.5" marker-end="url(#fe-arr)" />
+
+            <!-- Role Modules -->
+            <rect x="480" y="15" width="340" height="35" rx="6" fill="#312e81" />
+            <text x="650" y="37" font-size="10.5" fill="#fff" font-weight="bold" text-anchor="middle">Company Admin
+              Module (Reviewers, Settings, WP Keys)</text>
+
+            <rect x="480" y="58" width="340" height="35" rx="6" fill="#1e293b" stroke="#0ea5e9" />
+            <text x="650" y="80" font-size="10.5" fill="#fff" font-weight="bold" text-anchor="middle">Reviewer Module
+              (Active Task Queue, Timetable Editor)</text>
+
+            <rect x="480" y="100" width="340" height="35" rx="6" fill="#0f172a" stroke="#8b5cf6" />
+            <text x="650" y="122" font-size="10.5" fill="#fff" font-weight="bold" text-anchor="middle">Editor Module
+              (Today's Chat, 15m Canvas, Edit Mode)</text>
+
+            <defs>
+              <marker id="fe-arr" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6"
+                orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#64748b" />
+              </marker>
+            </defs>
+          </svg>
+        </div>
+      </section>
+
+      <!-- SECTION 25 -->
+      <section id="sec-25">
+        <h2>
+          25. Security &amp; Credential Defense
+          <span class="tag-pill tag-arch">Architecture Decision</span>
+        </h2>
+        <div class="card-grid">
+          <div class="card danger-border">
+            <h4>Credential Protection at Rest</h4>
+            <ul>
+              <li>User passwords hashed via bcrypt / argon2 with unique cryptographic salt.</li>
+              <li>Third-party publishing credentials (WordPress Application Passwords) are encrypted at rest using
+                application-level Fernet symmetric encryption. The encryption key is supplied through protected
+                environment configuration and is never hardcoded or returned through normal API responses.</li>
+              <li>Encryption keys injected via protected environment variables; never hardcoded or stored in Git.</li>
+              <li>Credentials scoped strictly to integration records; never returned in normal API responses or UI.</li>
+            </ul>
+          </div>
+          <div class="card warning-border">
+            <h4>Edge Rate Limiting &amp; Anti-Abuse</h4>
+            <ul>
+              <li>Strict rate limiting on OTP requests: max 3 attempts per corporate email within 24 hours.</li>
+              <li>CAPTCHA solve enforcement: max 3 failures before temporary cooldown; rate-limited challenge refresh.
+              </li>
+              <li>Destructive account deletion requires explicit password re-authentication and double confirmation.
+              </li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 26 -->
+      <section id="sec-26">
+        <h2>
+          26. Failure &amp; Recovery Protocols
+          <span class="tag-pill tag-arch">Architecture Decision</span>
+        </h2>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Failure Scenario</th>
+                <th>Detection Mechanism</th>
+                <th>State Transition &amp; Recovery Protocol</th>
+                <th>Notification Target</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>LLM API Timeout / Rate Limit</strong></td>
+                <td>HTTP 429/504 in LangGraph node</td>
+                <td>Exponential backoff retry (up to 3 attempts). If exhausted, transitions to
+                  <code>GENERATION_FAILED</code>. Retains topic choice.</td>
+                <td>Editor (in chat)</td>
+              </tr>
+              <tr>
+                <td><strong>Malformed Model Output</strong></td>
+                <td>Pydantic validation failure in output parser</td>
+                <td>Re-prompt node with repair instructions detailing validation errors.</td>
+                <td>Internal LangGraph log</td>
+              </tr>
+              <tr>
+                <td><strong>Format Hierarchy Violation</strong></td>
+                <td>Deterministic AST check fails baseline test</td>
+                <td>Loops back to Drafting Node with specific structural correction prompt.</td>
+                <td>Internal LangGraph log</td>
+              </tr>
+              <tr>
+                <td><strong>Reviewer Inaction at 4:00 PM</strong></td>
+                <td>Target publishing timestamp arrives</td>
+                <td>Action window locks. State transitions to <code>REVIEW_EXPIRED</code>. Does NOT auto-publish
+                  unapproved drafts.</td>
+                <td>Reviewer &amp; Editor</td>
+              </tr>
+              <tr>
+                <td><strong>WordPress API Ambiguous Network Timeout</strong></td>
+                <td>Socket drop / HTTP timeout before response</td>
+                <td>State transitions to <code>PUBLISHING_UNKNOWN / RECONCILIATION_REQUIRED</code>. System initiates
+                  external-post reconciliation (verifying remote post existence via title/slug query) prior to any
+                  retry, preventing duplicate live articles. If verified, marks <code>PUBLISHED</code>; if confirmed
+                  absent, retries safely.</td>
+                <td>Editor &amp; Company Admin</td>
+              </tr>
+              <tr>
+                <td><strong>WordPress API Fatal Failure (401/500)</strong></td>
+                <td>Non-201 HTTP response or invalid credentials</td>
+                <td>State transitions to <code>PUBLISH_FAILED</code>. Commits diagnostic error log; active cycle remains
+                  open for manual resolution.</td>
+                <td>Editor &amp; Company Admin</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- SECTION 27 -->
+      <section id="sec-27">
+        <h2>
+          27. End-to-End Technical Sequence
+          <span class="tag-pill tag-arch">Master Technical Sequence</span>
+        </h2>
+        <p>
+          The complete technical interaction traces the lifecycle of a daily blog across all platform tiers:
+        </p>
+
+        <div class="diagram-wrapper">
+          <span class="diagram-title">Visual 14: Master End-to-End Technical Sequence Diagram</span>
+          <svg viewBox="0 0 980 440" xmlns="http://www.w3.org/2000/svg">
+            <!-- Lifelines -->
+            <line x1="80" y1="40" x2="80" y2="410" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4" />
+            <line x1="230" y1="40" x2="230" y2="410" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4" />
+            <line x1="390" y1="40" x2="390" y2="410" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4" />
+            <line x1="560" y1="40" x2="560" y2="410" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4" />
+            <line x1="720" y1="40" x2="720" y2="410" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4" />
+            <line x1="880" y1="40" x2="880" y2="410" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4" />
+
+            <!-- Headers -->
+            <rect x="20" y="10" width="120" height="30" rx="4" fill="#312e81" />
+            <text x="80" y="30" font-size="10" fill="#fff" text-anchor="middle" font-weight="bold">Editor Client</text>
+
+            <rect x="170" y="10" width="120" height="30" rx="4" fill="#4f46e5" />
+            <text x="230" y="30" font-size="10" fill="#fff" text-anchor="middle" font-weight="bold">FastAPI
+              Gateway</text>
+
+            <rect x="330" y="10" width="120" height="30" rx="4" fill="#8b5cf6" />
+            <text x="390" y="30" font-size="10" fill="#fff" text-anchor="middle" font-weight="bold">LangGraph AI</text>
+
+            <rect x="500" y="10" width="120" height="30" rx="4" fill="#10b981" />
+            <text x="560" y="30" font-size="10" fill="#fff" text-anchor="middle" font-weight="bold">PostgreSQL /
+              pgvector</text>
+
+            <rect x="660" y="10" width="120" height="30" rx="4" fill="#f59e0b" />
+            <text x="720" y="30" font-size="10" fill="#fff" text-anchor="middle" font-weight="bold">Reviewer
+              Client</text>
+
+            <rect x="820" y="10" width="120" height="30" rx="4" fill="#0ea5e9" />
+            <text x="880" y="30" font-size="10" fill="#fff" text-anchor="middle" font-weight="bold">WordPress
+              Gateway</text>
+
+            <!-- Sequence Steps -->
+            <line x1="80" y1="65" x2="230" y2="65" stroke="#4f46e5" stroke-width="1.5" marker-end="url(#seq-m-arr)" />
+            <text x="155" y="60" font-size="8.5" fill="#334155" text-anchor="middle">1. Select/Provide Topic</text>
+
+            <line x1="230" y1="95" x2="390" y2="95" stroke="#4f46e5" stroke-width="1.5" marker-end="url(#seq-m-arr)" />
+            <text x="310" y="90" font-size="8.5" fill="#334155" text-anchor="middle">2. Invoke LangGraph Run</text>
+
+            <line x1="390" y1="125" x2="560" y2="125" stroke="#8b5cf6" stroke-width="1.5"
+              marker-end="url(#seq-m-arr)" />
+            <text x="475" y="120" font-size="8.5" fill="#334155" text-anchor="middle">3. Scoped pgvector Query</text>
+
+            <line x1="560" y1="155" x2="390" y2="155" stroke="#10b981" stroke-width="1.5" stroke-dasharray="3"
+              marker-end="url(#seq-m-arr)" />
+            <text x="475" y="150" font-size="8.5" fill="#334155" text-anchor="middle">4. Return Chunks &amp;
+              Context</text>
+
+            <line x1="390" y1="185" x2="230" y2="185" stroke="#8b5cf6" stroke-width="1.5"
+              marker-end="url(#seq-m-arr)" />
+            <text x="310" y="180" font-size="8.5" fill="#334155" text-anchor="middle">5. Draft Completed &amp;
+              Validated</text>
+
+            <line x1="230" y1="215" x2="80" y2="215" stroke="#4f46e5" stroke-width="1.5" marker-end="url(#seq-m-arr)" />
+            <text x="155" y="210" font-size="8.5" fill="#334155" text-anchor="middle">6. Draft Available (15m
+              Timer)</text>
+
+            <line x1="80" y1="250" x2="230" y2="250" stroke="#4f46e5" stroke-width="1.5" marker-end="url(#seq-m-arr)" />
+            <text x="155" y="245" font-size="8.5" fill="#334155" text-anchor="middle">7. Submit to Reviewer</text>
+
+            <line x1="230" y1="280" x2="720" y2="280" stroke="#f59e0b" stroke-width="1.5"
+              marker-end="url(#seq-m-arr)" />
+            <text x="475" y="275" font-size="8.5" fill="#334155" text-anchor="middle">8. Push to Reviewer Queue</text>
+
+            <line x1="720" y1="315" x2="230" y2="315" stroke="#f59e0b" stroke-width="1.5"
+              marker-end="url(#seq-m-arr)" />
+            <text x="475" y="310" font-size="8.5" fill="#334155" text-anchor="middle">9. Execute Decision:
+              APPROVE</text>
+
+            <line x1="230" y1="350" x2="880" y2="350" stroke="#0ea5e9" stroke-width="2" marker-end="url(#seq-m-arr)" />
+            <text x="555" y="345" font-size="8.5" fill="#0369a1" font-weight="bold" text-anchor="middle">10. Publish to
+              WordPress REST API</text>
+
+            <line x1="880" y1="385" x2="230" y2="385" stroke="#10b981" stroke-width="1.5" stroke-dasharray="3"
+              marker-end="url(#seq-m-arr)" />
+            <text x="555" y="380" font-size="8.5" fill="#047857" font-weight="bold" text-anchor="middle">11. 201 Created
+              &amp; Link Verified</text>
+
+            <defs>
+              <marker id="seq-m-arr" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6"
+                orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#64748b" />
+              </marker>
+            </defs>
+          </svg>
+        </div>
+      </section>
+
+      <!-- SECTION 28 -->
+      <section id="sec-28">
+        <h2>
+          28. Architecture Decisions &amp; Trade-offs
+          <span class="tag-pill tag-arch">Architecture Decision</span>
+        </h2>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Decision Area</th>
+                <th>Selected Approach</th>
+                <th>Alternatives Rejected</th>
+                <th>Trade-off Rationale</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Vector Subsystem</strong></td>
+                <td>PostgreSQL + pgvector</td>
+                <td>Pinecone, Weaviate, Qdrant</td>
+                <td>Consolidates ACID state and vector embeddings in one operational database, eliminating dual-store
+                  synchronization bugs and reducing operational complexity.</td>
+              </tr>
+              <tr>
+                <td><strong>AI Orchestrator</strong></td>
+                <td>LangGraph</td>
+                <td>Autogen, CrewAI, Raw Chains</td>
+                <td>LangGraph natively supports cyclic state machines, explicit memory checkpointers, and first-class
+                  Human-in-the-Loop interrupts required by editorial governance.</td>
+              </tr>
+              <tr>
+                <td><strong>Multi-Tenancy Model</strong></td>
+                <td>Logical Shared Database (<code>company_id</code>)</td>
+                <td>Database-per-tenant, Schema-per-tenant</td>
+                <td>Significantly reduces connection pool exhaustion and database migration overhead while maintaining
+                  strict query-level isolation.</td>
+              </tr>
+              <tr>
+                <td><strong>Background Processing</strong></td>
+                <td>Celery + Redis</td>
+                <td>Asyncio background tasks, ARQ</td>
+                <td>Celery provides industrial distributed queuing, robust retry ergonomics, and Celery Beat cron
+                  scheduling suitable for scheduled blog publication.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- SECTION 29 -->
+      <section id="sec-29">
+        <h2>
+          29. Assumptions &amp; Deferred Items
+          <span class="tag-pill tag-assumption">Assumptions &amp; Future Scope</span>
+        </h2>
+        <div class="card-grid">
+          <div class="card warning-border">
+            <h4>Architectural Assumptions</h4>
+            <ul>
+              <li><strong>[ASSUMPTION-01]:</strong> Target WordPress websites have standard REST API endpoints active
+                and permit Application Password authentication headers.</li>
+              <li><strong>[ASSUMPTION-02]:</strong> Corporate emails share the company registered domain to allow
+                automated tenant matching during registration requests.</li>
+              <li><strong>[ASSUMPTION-03]:</strong> Audio transcription relies on standard browser Web Audio /
+                SpeechRecognition capabilities passing text strings to the API.</li>
+            </ul>
+          </div>
+          <div class="card secondary-border">
+            <h4>Deferred / Future Architecture Items</h4>
+            <ul>
+              <li><strong>[DEFERRED-01]:</strong> Multi-CMS provider adapters (Shopify, Webflow, Ghost, Medium) to be
+                introduced in subsequent roadmap phases.</li>
+              <li><strong>[DEFERRED-02]:</strong> Automated featured image generation and asset upload pipeline.</li>
+              <li><strong>[DEFERRED-03]:</strong> Multi-lingual automatic blog localization and translation nodes.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 30 -->
+      <section id="sec-30">
+        <h2>
+          30. Document 2 Validation Checklist
+          <span class="tag-pill tag-arch">Quality Assurance</span>
+        </h2>
+        <div class="callout callout-info" style="margin-bottom: 16px;">
+          <strong>Architectural Scope &amp; Compliance Notice:</strong>
+          This checklist certifies that all required technical architectures, domain boundaries, security invariants,
+          and state machines are fully specified within this blueprint.
+          <br><strong>ARCHITECTURE COVERAGE ≠ IMPLEMENTATION VERIFICATION:</strong>
+          Marking an area as <em>Architecture Covered</em> or <em>Design Specified</em> certifies that the technical
+          blueprint has established the necessary data models, state machines, and API boundaries for engineering
+          implementation, not that backend or frontend code is currently implemented.
+        </div>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Architecture Verification Area</th>
+                <th>Status in Document 2</th>
+                <th>Cross-Reference to Document 1 (Frozen PRD)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>3-Role Hierarchy &amp; Vertical RBAC Authorization</td>
+                <td><span class="tag-pill tag-implemented">[IMPLEMENTED]</span></td>
+                <td>Conforms to Doc 1 Section 5, 6, 7 (Admin &rarr; Reviewer &rarr; Editor; JWT claims &amp;
+                  dependencies implemented).</td>
+              </tr>
+              <tr>
+                <td>Credential Lifecycle (42h / 48h temp resets &amp; forced reset)</td>
+                <td><span class="tag-pill tag-implemented">[IMPLEMENTED]</span></td>
+                <td>Conforms to Doc 1 Section 12 (Admin SLA 24h, Reviewer 42h, Editor 48h; password service
+                  implemented).</td>
+              </tr>
+              <tr>
+                <td>Editor 15-Minute Control Window &amp; Active Edit Lock</td>
+                <td><span class="tag-pill tag-target">[ARCHITECTURE / DESIGN]</span></td>
+                <td>Conforms to Doc 1 Section 19 (Non-forcible handoff during active editing; target state machine
+                  specified).</td>
+              </tr>
+              <tr>
+                <td>Reviewer Time-Gated Review Decision Windows</td>
+                <td><span class="tag-pill tag-target">[ARCHITECTURE / DESIGN]</span></td>
+                <td>Conforms to Doc 1 Section 22 (&gt;20m, 20-10m, 10-5m, 5-0m, Lock at 0; service evaluation logic
+                  designed).</td>
+              </tr>
+              <tr>
+                <td>Rescheduling Rule (&ge; 1h Before Next Scheduled Slot)</td>
+                <td><span class="tag-pill tag-target">[ARCHITECTURE / DESIGN]</span></td>
+                <td>Conforms to Doc 1 Section 24 &amp; 25 (Single active cycle preservation; field:
+                  <code>scheduled_at</code>).</td>
+              </tr>
+              <tr>
+                <td>Single Active Cycle Transactional Concurrency (0, 1, or 2+)</td>
+                <td><span class="tag-pill tag-target">[ARCHITECTURE / DESIGN]</span></td>
+                <td>Prevents concurrent draft collisions; 0 = valid idle, 1 = valid active, 2+ = invalid; historical
+                  blogs preserved durably.</td>
+              </tr>
+              <tr>
+                <td>WordPress Headless Dispatch via Application Passwords</td>
+                <td><span class="tag-pill tag-implemented">[IMPLEMENTED (MOCKED)]</span></td>
+                <td>Conforms to Doc 1 Section 26 (Fernet credential encryption &amp; dispatch service verified with
+                  mocked tests).</td>
+              </tr>
+              <tr>
+                <td>Publishing Integration Verification (<code>is_verified</code>)</td>
+                <td><span class="tag-pill tag-implemented">[IMPLEMENTED]</span></td>
+                <td>Connection verification endpoint checks WordPress REST API credentials before enabling dispatch.
+                </td>
+              </tr>
+              <tr>
+                <td>Live WordPress E2E &amp; Duplicate Idempotency Reconciliation</td>
+                <td><span class="tag-pill tag-planned">[PLANNED / DEFERRED]</span></td>
+                <td>Pre-retry external post reconciliation to eliminate duplicate WordPress posts; live third-party
+                  testing.</td>
+              </tr>
+              <tr>
+                <td>Logical Tenant Isolation Enforced across SQL &amp; Vectors</td>
+                <td><span class="tag-pill tag-target">[ARCHITECTURE / DESIGN]</span></td>
+                <td>Conforms to Doc 1 Section 31 (Zero cross-company data leakage; HNSW tenant-scoped filtering).</td>
+              </tr>
+              <tr>
+                <td>AI Prompt Architecture &amp; Layered Context Contracts</td>
+                <td><span class="tag-pill tag-target">[ARCHITECTURE / DESIGN]</span></td>
+                <td>Conforms to assessment prompt requirements (8 controlled context layers and 3 sample prompt
+                  contracts specified).</td>
+              </tr>
+              <tr>
+                <td>11 Application Modules &amp; Domain Responsibilities</td>
+                <td><span class="tag-pill tag-target">[ARCHITECTURE / DESIGN]</span></td>
+                <td>Conforms to assessment architecture decomposition requirements (backend models established; UI
+                  planned).</td>
+              </tr>
+              <tr>
+                <td>Social Intelligence Pipeline &amp; Memory Quarantine</td>
+                <td><span class="tag-pill tag-target">[ARCHITECTURE / DESIGN]</span></td>
+                <td>8-stage trend pipeline; external chatter quarantined from durable memory; third-party APIs planned.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- FOOTER -->
+      <footer>
+        <p>DailyBlog AI — System Architecture &amp; AI Blueprint | Document 2</p>
+        <p>Confidential &amp; Technical Specification — Designed for Engineering Execution &amp; Assessment Compliance
+        </p>
+      </footer>
+
+    </main>
+  </div>
+
+</body>
+
+</html>
